@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japonya Tur Rehberi 2026 | Tokyo & Osaka (4 Kişi)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="text-slate-800 pb-24">
+
+  <!-- LOGIN / GATE MODAL -->
+  <div id="authModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="text-center mb-6">
+        <span class="inline-block px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-bold tracking-wider uppercase mb-2">26 Kas - 06 Ara 2026</span>
+        <h1 class="text-2xl font-extrabold text-slate-900">Japonya Tur Planı</h1>
+        <p class="text-sm text-slate-500 mt-1">Tokyo & Osaka • 4 Kişilik Özel Rehber</p>
+      </div>
+
+      <!-- Registered Users Info -->
+      <div id="registeredUsersBox" class="bg-slate-50 rounded-2xl p-3.5 mb-5 border border-slate-200/70">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
+          <span>Kayıtlı Yolcular (Maks. 4 Kişi)</span>
+          <span id="userCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold">0 / 4</span>
+        </div>
+        <div id="registeredUsersList" class="flex flex-wrap gap-1.5 text-xs text-slate-500">
+          Henüz kayıtlı yolcu yok.
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-5">
+        <button onclick="switchAuthTab('guest')" id="tabGuest" class="py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm transition">Yolcu Girişi</button>
+        <button onclick="switchAuthTab('admin')" id="tabAdmin" class="py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition">Admin Girişi</button>
+      </div>
+
+      <!-- Guest Form -->
+      <div id="guestLoginForm">
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Adınız Soyadınız</label>
+        <input type="text" id="guestNameInput" placeholder="Örn: Aykut Avcı" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm mb-3" />
+        <p id="authError" class="text-xs text-rose-600 font-semibold mb-3 hidden"></p>
+        <button onclick="handleGuestLogin()" class="w-full py-3.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-lg shadow-rose-600/20 transition">
+          Planı Görüntüle
+        </button>
+        <p class="text-[11px] text-slate-400 text-center mt-3">
+          4 farklı yolcu giriş yaptıktan sonra sistem güvenlik nedeniyle yeni kayıtlara kapanır.
+        </p>
+      </div>
+
+      <!-- Admin Form -->
+      <div id="adminLoginForm" class="hidden">
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Admin PIN Kodu</label>
+        <input type="password" id="adminPinInput" placeholder="Varsayılan: 2026" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm mb-3" />
+        <p id="adminError" class="text-xs text-rose-600 font-semibold mb-3 hidden"></p>
+        <button onclick="handleAdminLogin()" class="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg transition">
+          Yönetici Olarak Gir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">🇯🇵</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-sm sm:text-base text-slate-900 leading-tight">Japonya 2026</h1>
+            <span id="roleBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Misafir</span>
+            <span id="syncIndicator" class="w-2 h-2 rounded-full bg-emerald-500" title="Senkronize"></span>
+          </div>
+          <p class="text-[11px] text-slate-500">26 Kas - 06 Ara • 4 Kişi</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button onclick="openBudgetModal()" class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1.5 transition">
+          <span>💴 Bütçe</span>
+          <span id="headerTotalJpy" class="hidden sm:inline font-extrabold">¥0</span>
+        </button>
+        <button onclick="openTipsModal()" class="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold transition">
+          💡 İpuçları
+        </button>
+        <button onclick="openSettingsModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition" title="Ayarlar">
+          ⚙️
+        </button>
+      </div>
+    </div>
+
+    <!-- DAY SELECTOR TABS -->
+    <div class="max-w-5xl mx-auto px-4 pb-2.5 overflow-x-auto no-scrollbar flex gap-2" id="dayTabs"></div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-5xl mx-auto px-4 pt-5 space-y-5">
+
+    <!-- PROGRESS BAR -->
+    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+      <div class="flex items-center justify-between text-xs font-bold mb-2">
+        <span class="text-slate-600">Genel Tur İlerlemesi</span>
+        <span id="overallProgressText" class="text-rose-600">0 / 0 Tamamlandı (%0)</span>
+      </div>
+      <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+        <div id="overallProgressBar" class="h-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- NEXT DESTINATION HERO CARD -->
+    <div id="nextTargetCard" class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-5 shadow-xl relative overflow-hidden">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <span class="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-bold tracking-wide uppercase">
+          🎯 Sıradaki Hedef
+        </span>
+        <span id="nextTargetDayTag" class="text-xs text-slate-300 font-semibold"></span>
+      </div>
+      <div id="nextTargetBody"></div>
+    </div>
+
+    <!-- SELECTED DAY HEADER & STATS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+      <div>
+        <div class="flex items-center gap-2">
+          <span id="currentDayCityBadge" class="px-2.5 py-0.5 rounded-md text-xs font-extrabold uppercase bg-rose-100 text-rose-700">TOKYO</span>
+          <h2 id="currentDayTitle" class="text-lg font-extrabold text-slate-900">1. Gün</h2>
+        </div>
+        <p id="currentDaySub" class="text-xs text-slate-500 mt-0.5"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-[11px] text-slate-400 font-semibold">Günlük 4 Kişi Toplam</div>
+          <div class="text-sm font-extrabold text-slate-900">
+            <span id="dayTotalJpy">¥0</span>
+            <span class="text-xs font-semibold text-emerald-600 ml-1" id="dayTotalTry">(₺0)</span>
+          </div>
+        </div>
+        <button id="addStopBtn" onclick="openAddModal()" class="hidden px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition">
+          + Durak Ekle
+        </button>
+      </div>
+    </div>
+
+    <!-- TIMELINE / CHECKLIST ITEMS -->
+    <div id="stopsContainer" class="space-y-3.5"></div>
+
+  </main>
+
+  <!-- BUDGET MODAL -->
+  <div id="budgetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-slate-900">11 Günlük Bütçe Özeti (4 Kişi)</h3>
+          <p class="text-xs text-slate-500">Seçilen ulaşım modlarına (Tren / Taksi / Otobüs) göre canlı hesaplanır</p>
+        </div>
+        <button onclick="closeModal('budgetModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs font-bold text-slate-700">Döviz Kuru Ayarı (1 JPY = ? TRY)</div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500">1 ¥ =</span>
+            <input type="number" step="0.001" id="exchangeRateInput" onchange="updateExchangeRate(this.value)" class="w-24 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-right" />
+            <span class="text-xs font-bold text-slate-500">₺</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100">
+            <div class="text-xs font-bold text-indigo-600">Ulaşım (4 Kişi)</div>
+            <div class="text-lg font-extrabold text-indigo-950 mt-1" id="budgetTransportJpy">¥0</div>
+            <div class="text-xs font-semibold text-indigo-700" id="budgetTransportTry">₺0</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-rose-50 border border-rose-100">
+            <div class="text-xs font-bold text-rose-600">Giriş & Yemek (4 Kişi)</div>
+            <div class="text-lg font-extrabold text-rose-950 mt-1" id="budgetActivityJpy">¥0</div>
+            <div class="text-xs font-semibold text-rose-700" id="budgetActivityTry">₺0</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-emerald-600 text-white shadow-md">
+            <div class="text-xs font-bold text-emerald-100">GENEL TOPLAM (4 Kişi)</div>
+            <div class="text-xl font-extrabold mt-1" id="budgetGrandJpy">¥0</div>
+            <div class="text-xs font-semibold text-emerald-100" id="budgetGrandTry">₺0</div>
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+              <tr>
+                <th class="p-3">Gün</th>
+                <th class="p-3">Ulaşım</th>
+                <th class="p-3">Aktivite/Yemek</th>
+                <th class="p-3 text-right">4 Kişi Toplam</th>
+              </tr>
+            </thead>
+            <tbody id="budgetBreakdownBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT STOP MODAL -->
+  <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 id="editModalTitle" class="text-lg font-extrabold text-slate-900">Durak Düzenle</h3>
+        <button onclick="closeModal('editModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-3 text-xs">
+        <input type="hidden" id="editStopId" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Saat</label>
+            <input type="text" id="editTime" placeholder="09:30" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kategori</label>
+            <select id="editType" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="sight">Gezi / Aktivite</option>
+              <option value="food">Kahvaltı / Yemek</option>
+              <option value="shop">Alışveriş</option>
+              <option value="transit">Transfer / Eve Dönüş</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Mekan / Aktivite Adı</label>
+          <input type="text" id="editTitle" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Açıklama & Notlar</label>
+          <textarea id="editDesc" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Giriş / Yemek (4 Kişi Toplam ¥)</label>
+            <input type="number" id="editCost4" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Google Maps Sorgusu</label>
+            <input type="text" id="editMapQuery" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+        </div>
+        <div class="border-t border-slate-100 pt-3">
+          <div class="font-bold text-slate-800 mb-2">Ulaşım Seçenekleri (4 Kişi Toplam ¥)</div>
+          <div class="space-y-2">
+            <div class="grid grid-cols-3 gap-2 items-center">
+              <span class="font-bold text-indigo-700">🚆 Tren/Metro</span>
+              <input type="number" id="editTrainCost" placeholder="Ücret ¥" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+              <input type="text" id="editTrainNote" placeholder="Hat bilgisi" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+            </div>
+            <div class="grid grid-cols-3 gap-2 items-center">
+              <span class="font-bold text-amber-700">🚕 Taksi (4 Kişi)</span>
+              <input type="number" id="editTaxiCost" placeholder="Ücret ¥" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+              <input type="text" id="editTaxiNote" placeholder="Süre / Not" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+            </div>
+            <div class="grid grid-cols-3 gap-2 items-center">
+              <span class="font-bold text-emerald-700">🚌 Otobüs</span>
+              <input type="number" id="editBusCost" placeholder="Ücret ¥" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+              <input type="text" id="editBusNote" placeholder="Hat / Durak" class="px-2.5 py-1.5 rounded-lg border border-slate-200" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="closeModal('editModal')" class="px-4 py-2 rounded-xl bg-slate-100 font-bold text-xs">İptal</button>
+        <button onclick="saveStopEdit()" class="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs shadow">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS MODAL -->
+  <div id="tipsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-slate-900">💡 4 Kişilik Japonya Altın İpuçları</h3>
+        <button onclick="closeModal('tipsModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-3 text-xs leading-relaxed text-slate-700">
+        <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/70">
+          <div class="font-extrabold text-amber-900 mb-1">🚕 4 Kişi İçin Taksi Avantajı</div>
+          Japonya'da taksi pahalı bilinse de 4 kişi bölüşünce 3-5 km mesafelerde (örneğin Kishinosato - Namba/Shinsekai veya Asakusa - Akihabara arası) metro bileti toplamıyla neredeyse aynı fiyata gelir ve kapıdan kapıya konfor sağlar.
+        </div>
+        <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200/70">
+          <div class="font-extrabold text-indigo-900 mb-1">🚄 Shinkansen Büyük Valiz Kuralı</div>
+          160 cm üzeri (büyük boy) valizler için Tokaido Shinkansen'de (Tokyo - Shin-Osaka) mutlaka <b>"Oversized Baggage Area"</b> koltuğu seçilmelidir. SmartEX uygulamasından 1 ay önceden yer ayırtın.
+        </div>
+        <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200/70">
+          <div class="font-extrabold text-rose-900 mb-1">🥩 Ginza Steak Akasaka Rezervasyonu</div>
+          Sınırsız A5 Wagyu Teppanyaki konseptli bu restoran çok popülerdir. 3 Aralık akşamı 4 kişilik masa için gitmeden en az 2-3 hafta önce resmi sitesinden rezervasyon yapın.
+        </div>
+        <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/70">
+          <div class="font-extrabold text-emerald-900 mb-1">📱 Suica / Pasmo & Tax-Free</div>
+          iPhone kullanıyorsanız Apple Wallet üzerinden doğrudan dijital Suica ekleyip Apple Pay ile yükleme yapabilirsiniz. Yodobashi ve Bic Camera'da pasaportunuz yanınızda olsun (%10 vergi iadesi + %5-7 turist indirimi).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-extrabold text-slate-900">Sistem & Kullanıcı Ayarları</h3>
+        <button onclick="closeModal('settingsModal')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div class="text-xs space-y-3">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div class="font-bold text-slate-700 mb-1">Aktif Oturum</div>
+          <div id="currentSessionInfo" class="text-slate-600"></div>
+        </div>
+
+        <div id="adminControlsBox" class="hidden space-y-3 border-t border-slate-100 pt-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kayıtlı Yolcuları Yönet (Maks. 4)</label>
+            <div id="adminUserManager" class="space-y-1.5"></div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Admin PIN Değiştir</label>
+            <div class="flex gap-2">
+              <input type="text" id="newAdminPinInput" placeholder="Yeni PIN" class="flex-1 px-3 py-2 rounded-xl border border-slate-200" />
+              <button onclick="changeAdminPin()" class="px-3 py-2 rounded-xl bg-slate-800 text-white font-bold">Güncelle</button>
+            </div>
+          </div>
+          <div class="pt-2">
+            <button onclick="resetAllData()" class="w-full py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200">
+              Varsayılan Plana Sıfırla
+            </button>
+          </div>
+        </div>
+
+        <button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold">
+          Çıkış Yap / Kullanıcı Değiştir
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const TOKYO_HOME = "19-3 Senjukotobukichō, Adachi City, Tokyo 120-0033";
+const OSAKA_HOME = "3-chōme-5-6 Kishinosato, Nishinari Ward, Osaka 557-0041";
+
+const DEFAULT_DATA = {
+  exchangeRate: 0.235,
+  adminPin: "2026",
+  registeredUsers: [],
+  days: [
+    {
+      dayNum: 1,
+      date: "26 Kasım 2026, Perşembe",
+      city: "TOKYO",
+      title: "İstanbul → Tokyo Haneda & Eve Yerleşme",
+      subtitle: "Varış, Kita-Senju ev girişi ve ilk akşam yemeği",
+      stops: [
+        {
+          id: "d1_1", time: "19:30", type: "transit", completed: false,
+          title: "Tokyo Haneda Havalimanı (HND) Varış & Pasaport",
+          desc: "02:30 İstanbul kalkışlı uçuşla akşam varış. Visit Japan Web QR kodları, bagaj alımı ve Suica kart yüklemesi.",
+          cost4: 0, mapQuery: "Haneda Airport Terminal 3",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 2600, note: "Keikyu Line → Shinagawa → JR Joban Line (Kita-Senju)" },
+            taxi: { cost4: 13500, note: "Büyük valizlerle direkt kapıya ~40 dk (4 kişi bölüşünce çok rahat)" },
+            bus: { cost4: 5200, note: "Airport Limousine Bus → Kitasenju Station East Exit" }
+          }
+        },
+        {
+          id: "d1_2", time: "21:30", type: "transit", completed: false,
+          title: "Tokyo Evi Check-in (Senjukotobukichō, Adachi)",
+          desc: "Konum: 19-3 Senjukotobukichō, Adachi City. Kita-Senju İstasyonu'na 7 dk yürüme mesafesi.",
+          cost4: 0, mapQuery: TOKYO_HOME,
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Kita-Senju İstasyonu'ndan 550m yürüyüş" },
+            taxi: { cost4: 700, note: "İstasyon önünden kısa mesafe taksi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d1_3", time: "22:15", type: "food", completed: false,
+          title: "Akşam Yemeği: Kita-Senju Ramen & Gyoza",
+          desc: "Ev çevresindeki yerel ramen dükkanlarında (Ichiran veya yerel Tonkotsu ramen) sıcak bir başlangıç.",
+          cost4: 5200, mapQuery: "Kita-Senju Station Ramen",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Eve 5 dk yürüme mesafesi" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 2,
+      date: "27 Kasım 2026, Cuma",
+      city: "OSAKA",
+      title: "Shinkansen ile Osaka'ya Geçiş, Miracle World & Dotonbori",
+      subtitle: "Tokyo'dan hızlı trenle Osaka Kishinosato'ya transfer ve gece turu",
+      stops: [
+        {
+          id: "d2_1", time: "08:00", type: "food", completed: false,
+          title: "Kahvaltı: Kita-Senju Fırın & Kahve (Ekiben Hazırlığı)",
+          desc: "Tren yolculuğu öncesi istasyon içindeki kafede kahvaltı ve Shinkansen için meşhur Japon tren kutusu (Ekiben) alımı.",
+          cost4: 4400, mapQuery: "Kita-Senju Station Bakery",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Evden istasyona 7 dk yürüyüş" },
+            taxi: { cost4: 800, note: "Valizlerle istasyona taksi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d2_2", time: "09:30", type: "transit", completed: false,
+          title: "Tokaido Shinkansen Nozomi: Tokyo → Shin-Osaka",
+          desc: "2 saat 30 dk süren hızlı tren yolculuğu. 4 kişi yan yana ve büyük valiz alanı rezervasyonlu koltuklar.",
+          cost4: 0, mapQuery: "Shin-Osaka Station",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 58880, note: "Kita-Senju → Tokyo İst. + Shinkansen Nozomi (Kişi başı ¥14,720)" },
+            taxi: { cost4: 59500, note: "Tokyo İstasyonu'na taksi + Shinkansen bileti" },
+            bus: { cost4: 26000, note: "Gündüz/Gece Otobüsü (7-8 saat sürer, önerilmez)" }
+          }
+        },
+        {
+          id: "d2_3", time: "13:00", type: "transit", completed: false,
+          title: "Osaka Evi Check-in (Kishinosato, Nishinari)",
+          desc: "Konum: 3-chōme-5-6 Kishinosato, Nishinari Ward. Valizleri eve bırakıp dinlenme.",
+          cost4: 0, mapQuery: OSAKA_HOME,
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1320, note: "Shin-Osaka → Namba (Midosuji) → Kishinosato (Yotsubashi Line)" },
+            taxi: { cost4: 4800, note: "Shin-Osaka'dan valizlerle direkt eve taksi (~25 dk)" },
+            bus: { cost4: 1200, note: "Şehir içi otobüs aktarmalı" }
+          }
+        },
+        {
+          id: "d2_4", time: "14:15", type: "food", completed: false,
+          title: "Öğle Yemeği: Namba Okonomiyaki (Mizuno veya Chibo)",
+          desc: "Osaka'nın imza yemeği olan sac üzerinde pişirilen Okonomiyaki ve Yakisoba.",
+          cost4: 7200, mapQuery: "Chibo Okonomiyaki Dotonbori",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 960, note: "Kishinosato → Namba (Yotsubashi Line, 7 dk)" },
+            taxi: { cost4: 1900, note: "Evden Namba'ya taksi (4 kişi için çok ekonomik)" },
+            bus: { cost4: 840, note: "Osaka City Bus" }
+          }
+        },
+        {
+          id: "d2_5", time: "16:00", type: "sight", completed: false,
+          title: "Miracle World Osaka",
+          desc: "Namba Oriental Hotel B1F bölgesindeki interaktif dijital sanat, ışık ve illüzyon deneyimi.",
+          cost4: 8800, mapQuery: "Miracle World Osaka Namba",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Namba içinde yürüyüş" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d2_6", time: "19:00", type: "sight", completed: false,
+          title: "Dotonbori Street Akşam Turu & Sokak Lezzetleri",
+          desc: "Glico Running Man tabelası, kanal tekne turu, Takoyaki (ahtapot topları) ve Kushikatsu akşam yemeği.",
+          cost4: 8000, mapQuery: "Dotonbori Glico Sign Osaka",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Miracle World çıkışında hemen Dotonbori" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d2_7", time: "22:30", type: "transit", completed: false,
+          title: "Kishinosato Eve Dönüş",
+          desc: "Namba'dan Nishinari Kishinosato evine dönüş.",
+          cost4: 0, mapQuery: OSAKA_HOME,
+          selectedMode: "taxi",
+          modes: {
+            train: { cost4: 960, note: "Namba → Kishinosato (Yotsubashi Line, son tren ~23:50)" },
+            taxi: { cost4: 1800, note: "Gece yorgunluğu için 4 kişi kapıya kadar taksi (~10 dk)" },
+            bus: { cost4: 840, note: "Gece otobüsü" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 3,
+      date: "28 Kasım 2026, Cumartesi",
+      city: "OSAKA",
+      title: "Universal Studios Japan (USJ) & Shinsekai",
+      subtitle: "Super Nintendo World, Harry Potter ve akşam retro Osaka",
+      stops: [
+        {
+          id: "d3_1", time: "07:15", type: "food", completed: false,
+          title: "Kahvaltı: Kishinosato Konbini (7-Eleven / Lawson) Hızlı Kahvaltı",
+          desc: "USJ kapı açılışına yetişmek için taze Onigiri, yumurtalı sandviç ve sıcak kahve.",
+          cost4: 2800, mapQuery: "Kishinosato Station 7-Eleven",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "İstasyon yolunda" },
+            taxi: { cost4: 0, note: "Yol üzeri" },
+            bus: { cost4: 0, note: "Yol üzeri" }
+          }
+        },
+        {
+          id: "d3_2", time: "08:30", type: "sight", completed: false,
+          title: "Universal Studios Japan (USJ) Tam Gün",
+          desc: "Super Nintendo World (Mario Kart), Wizarding World of Harry Potter ve Jurassic Park. (4 Kişi Giriş Bileti)",
+          cost4: 37600, mapQuery: "Universal Studios Japan",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1680, note: "Kishinosato → Namba → Nishikujo → Universal City" },
+            taxi: { cost4: 4600, note: "Sabah erken kapıda olmak için evden direkt taksi (~20 dk)" },
+            bus: { cost4: 1600, note: "Namba'dan USJ shuttle otobüsü" }
+          }
+        },
+        {
+          id: "d3_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle Yemeği: USJ Three Broomsticks veya Kinopio's Cafe",
+          desc: "Harry Potter bölgesinde Butterbeer eşliğinde öğle yemeği.",
+          cost4: 9600, mapQuery: "Three Broomsticks Universal Studios Japan",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Park içi" },
+            taxi: { cost4: 0, note: "Park içi" },
+            bus: { cost4: 0, note: "Park içi" }
+          }
+        },
+        {
+          id: "d3_4", time: "19:30", type: "food", completed: false,
+          title: "Öneri & Akşam Yemeği: Shinsekai & Tsutenkaku Kulesi",
+          desc: "Evinize çok yakın nostaljik neon mahallesi. Meşhur Kushikatsu Daruma'da akşam yemeği.",
+          cost4: 8400, mapQuery: "Shinsekai Osaka",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1640, note: "Universal City → Shin-Imamiya (JR Loop Line)" },
+            taxi: { cost4: 4200, note: "USJ çıkışından direkt Shinsekai'ye taksi" },
+            bus: { cost4: 1500, note: "Şehir otobüsü" }
+          }
+        },
+        {
+          id: "d3_5", time: "22:00", type: "transit", completed: false,
+          title: "Kishinosato Eve Dönüş",
+          desc: "Shinsekai'den Nishinari evinize kısa dönüş.",
+          cost4: 0, mapQuery: OSAKA_HOME,
+          selectedMode: "taxi",
+          modes: {
+            train: { cost4: 760, note: "Dobutsuen-mae / Tengachaya → Kishinosato" },
+            taxi: { cost4: 1100, note: "Sadece 1.8 km! 4 kişi için tek bilet fiyatına taksi" },
+            bus: { cost4: 840, note: "Belediye otobüsü" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 4,
+      date: "29 Kasım 2026, Pazar",
+      city: "OSAKA",
+      title: "Nara Geyikli Park, Osaka Kalesi & Aslan Tapınağı",
+      subtitle: "Kutsal geyikler, dev Buda heykeli ve Osaka tarihi durakları",
+      stops: [
+        {
+          id: "d4_1", time: "08:15", type: "food", completed: false,
+          title: "Kahvaltı: Namba İstasyonu Japon Kahvaltı Seti",
+          desc: "Kintetsu-Namba trenine binmeden önce ızgara somon, miso çorbası ve pilav veya tost seti.",
+          cost4: 4000, mapQuery: "Kintetsu Namba Station Cafe",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 960, note: "Kishinosato → Namba" },
+            taxi: { cost4: 1900, note: "Evden Namba'ya taksi" },
+            bus: { cost4: 840, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d4_2", time: "09:30", type: "sight", completed: false,
+          title: "Nara Park (Geyikli Park) & Todai-ji Tapınağı",
+          desc: "1.200'den fazla serbest geyiği krakerle (Shika Senbei) besleme ve dünyanın en büyük ahşap yapısı Todai-ji.",
+          cost4: 4000, mapQuery: "Nara Park Todaiji",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 2720, note: "Kintetsu-Namba → Kintetsu-Nara (Rapid Express, 38 dk)" },
+            taxi: { cost4: 16500, note: "Şehirler arası taksi (~45 dk, tren çok daha hızlı)" },
+            bus: { cost4: 2600, note: "Nara Kotsu otobüs hattı" }
+          }
+        },
+        {
+          id: "d4_3", time: "13:00", type: "food", completed: false,
+          title: "Öğle Yemeği: Nara Higashimuki Çarşısı & Nakatanidou Mochi",
+          desc: "Nara'da Kama-meshi (güveç pilavı) veya Udon eriştesi + ünlü yeşil çaylı dövme Mochi şovu.",
+          cost4: 6800, mapQuery: "Nakatanidou Nara",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Park çıkışında yürüyüş" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d4_4", time: "15:15", type: "sight", completed: false,
+          title: "Osaka Kalesi (Osaka Castle) & Sonbahar Bahçesi",
+          desc: "Kasım sonu altın sarısı ginkgo ağaçları eşliğinde Osaka Kalesi panoraması.",
+          cost4: 2400, mapQuery: "Osaka Castle",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 3200, note: "Kintetsu-Nara → Tsuruhashi → Morinomiya (JR Loop)" },
+            taxi: { cost4: 14000, note: "Nara'dan Osaka Kalesi'ne taksi" },
+            bus: { cost4: 3000, note: "Aktarmalı otobüs" }
+          }
+        },
+        {
+          id: "d4_5", time: "17:30", type: "sight", completed: false,
+          title: "Öneri: Namba Yasaka Jinja (Dev Aslan Başı Tapınağı)",
+          desc: "12 metre yüksekliğindeki devasa aslan ağzı sahnesiyle ünlü etkileyici tapınak.",
+          cost4: 0, mapQuery: "Namba Yasaka Jinja",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 960, note: "Morinomiya → Namba Metro" },
+            taxi: { cost4: 2400, note: "Kaleden tapınağa 4 kişi taksi" },
+            bus: { cost4: 840, note: "Şehir otobüsü" }
+          }
+        },
+        {
+          id: "d4_6", time: "19:30", type: "food", completed: false,
+          title: "Akşam Yemeği: Namba Yakiniku veya Ichiran Ramen",
+          desc: "Osaka'daki son akşam yemeği ve Kishinosato evine dönüş.",
+          cost4: 9200, mapQuery: "Namba Yakiniku",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 960, note: "Yemek sonrası Namba → Kishinosato Metro" },
+            taxi: { cost4: 1800, note: "Yemek sonrası Namba'dan eve taksi" },
+            bus: { cost4: 840, note: "Otobüs" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 5,
+      date: "30 Kasım 2026, Pazartesi",
+      city: "TOKYO",
+      title: "Kuromon Pazarı, Umeda Sky & Tokyo'ya Dönüş",
+      subtitle: "Osaka vedası, Shinkansen dönüşü ve Kita-Senju eve yerleşme",
+      stops: [
+        {
+          id: "d5_1", time: "09:00", type: "food", completed: false,
+          title: "Kahvaltı & Pazar Turu: Kuromon Ichiba Pazarı",
+          desc: "Valizlerle çıkış yapıp Namba istasyon dolabına bıraktıktan sonra 'Osaka'nın Mutfağı'nda taze deniz ürünleri, Wagyu şiş ve meyve.",
+          cost4: 8000, mapQuery: "Kuromon Ichiba Market",
+          selectedMode: "taxi",
+          modes: {
+            train: { cost4: 960, note: "Kishinosato → Namba" },
+            taxi: { cost4: 2000, note: "Valizlerle evden Namba dolaplarına direkt taksi" },
+            bus: { cost4: 840, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d5_2", time: "11:30", type: "sight", completed: false,
+          title: "Umeda Sky Building (Kuchu Teien Gözlemevi)",
+          desc: "173 metre yükseklikte iki kuleyi birleştiren açık hava yürüyen merdiveni ve Osaka manzarası.",
+          cost4: 6000, mapQuery: "Umeda Sky Building",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 960, note: "Namba → Umeda (Midosuji Line)" },
+            taxi: { cost4: 2500, note: "Namba'dan Umeda'ya taksi" },
+            bus: { cost4: 840, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d5_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle Yemeği: Shin-Osaka İstasyonu Katsu Curry / Bento",
+          desc: "Shinkansen öncesi istasyon içinde hızlı ve doyurucu Japon köri yemeği.",
+          cost4: 5600, mapQuery: "Shin-Osaka Station Restaurants",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 760, note: "Umeda → Shin-Osaka (1 durak)" },
+            taxi: { cost4: 1800, note: "Shin-Osaka'ya taksi" },
+            bus: { cost4: 840, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d5_4", time: "15:00", type: "transit", completed: false,
+          title: "Shinkansen Nozomi: Shin-Osaka → Tokyo Dönüş",
+          desc: "2.5 saatlik dönüş yolculuğu ve Kita-Senju evine yerleşme.",
+          cost4: 0, mapQuery: TOKYO_HOME,
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 58880, note: "Shinkansen Nozomi + Tokyo → Kita-Senju (Kişi başı ¥14,720)" },
+            taxi: { cost4: 60500, note: "Shinkansen + Tokyo İstasyonu'ndan Kita-Senju'ya taksi" },
+            bus: { cost4: 26000, note: "Şehirler arası otobüs" }
+          }
+        },
+        {
+          id: "d5_5", time: "19:30", type: "food", completed: false,
+          title: "Akşam Yemeği: Kita-Senju Yakitori & Eve Dönüş",
+          desc: "Tokyo evinizin sokağındaki geleneksel kömür ateşinde tavuk şiş (Yakitori) mekanları.",
+          cost4: 6400, mapQuery: TOKYO_HOME,
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Ev çevresi yürüme mesafesi" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 6,
+      date: "1 Aralık 2026, Salı",
+      city: "TOKYO",
+      title: "Tokyo DisneySea Tam Gün Macerası",
+      subtitle: "Dünyada sadece Tokyo'da bulunan deniz temalı Disney parkı & Fantasy Springs",
+      stops: [
+        {
+          id: "d6_1", time: "07:15", type: "food", completed: false,
+          title: "Kahvaltı: Kita-Senju İstasyon Kahvaltısı",
+          desc: "Sabah erken tren yolculuğu öncesi istasyon içinde kahve ve sandviç.",
+          cost4: 3200, mapQuery: "Kita-Senju Station",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Evden yürüyüş" },
+            taxi: { cost4: 0, note: "Yürüyüş" },
+            bus: { cost4: 0, note: "Yürüyüş" }
+          }
+        },
+        {
+          id: "d6_2", time: "08:30", type: "sight", completed: false,
+          title: "Tokyo DisneySea (Tam Gün & Gece Su Gösterisi)",
+          desc: "Fantasy Springs (Frozen, Tangled, Peter Pan), Journey to the Center of the Earth ve akşam Believe! Sea of Dreams şovu.",
+          cost4: 35600, mapQuery: "Tokyo DisneySea",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 2240, note: "Kita-Senju → Hatchobori (Hibiya) → Maihama (JR Keiyo) + Monorail" },
+            taxi: { cost4: 9500, note: "Adachi'den DisneySea'ye direkt taksi (~35 dk)" },
+            bus: { cost4: 4000, note: "Tokyo İstasyonu aktarmalı Disney Shuttle Bus" }
+          }
+        },
+        {
+          id: "d6_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle & Akşam Yemeği: DisneySea Temalı Restoranlar",
+          desc: "Mysterious Island Vulcania veya Arendelle Royal Banquet restoranlarında yemek.",
+          cost4: 12000, mapQuery: "Tokyo DisneySea Restaurants",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Park içi" },
+            taxi: { cost4: 0, note: "Park içi" },
+            bus: { cost4: 0, note: "Park içi" }
+          }
+        },
+        {
+          id: "d6_4", time: "21:30", type: "transit", completed: false,
+          title: "Kita-Senju Eve Dönüş",
+          desc: "Gece gösterisi sonrası Tokyo evinize dönüş.",
+          cost4: 0, mapQuery: TOKYO_HOME,
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 2240, note: "Maihama → Hatchobori → Kita-Senju" },
+            taxi: { cost4: 9800, note: "Gün boyu yürüyüş sonrası direkt eve taksi" },
+            bus: { cost4: 4000, note: "Shuttle + Metro" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 7,
+      date: "2 Aralık 2026, Çarşamba",
+      city: "TOKYO",
+      title: "Warner Bros. Harry Potter Studio & Shinjuku",
+      subtitle: "Toshimaen Harry Potter stüdyosu ve akşam neon Shinjuku",
+      stops: [
+        {
+          id: "d7_1", time: "08:30", type: "food", completed: false,
+          title: "Kahvaltı: Kita-Senju Kafe (Komeda's Coffee)",
+          desc: "Meşhur Japon kalın tostlu sabah kahvesi kültürü (Morning Service).",
+          cost4: 3800, mapQuery: "Komeda's Coffee Kita-Senju",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Yürüme mesafesi" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d7_2", time: "10:00", type: "sight", completed: false,
+          title: "Warner Bros. Studio Tour Tokyo – Harry Potter",
+          desc: "Büyük Salon, Yasak Orman, Diagon Yolu, 9¾ Peronu ve Hogwarts Ekspresi. (Önceden saatli bilet alınmalı)",
+          cost4: 26000, mapQuery: "Warner Bros Studio Tour Tokyo",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1840, note: "Kita-Senju → Ikebukuro → Toshimaen (Seibu Toshima Line)" },
+            taxi: { cost4: 8200, note: "Evden stüdyoya taksi (~35 dk)" },
+            bus: { cost4: 1800, note: "Ikebukuro aktarmalı otobüs" }
+          }
+        },
+        {
+          id: "d7_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle Yemeği: Harry Potter Backlot Cafe & Butterbeer Bar",
+          desc: "Stüdyo ortasındaki kafede Hogwarts temalı öğle yemeği.",
+          cost4: 9600, mapQuery: "Backlot Cafe Warner Bros Tokyo",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Stüdyo içi" },
+            taxi: { cost4: 0, note: "Stüdyo içi" },
+            bus: { cost4: 0, note: "Stüdyo içi" }
+          }
+        },
+        {
+          id: "d7_4", time: "16:30", type: "sight", completed: false,
+          title: "Shinjuku: 3D Kedi Tabelası, Kabukicho & Omoide Yokocho",
+          desc: "Tokyo'nun en hareketli neon meydanı, Godzilla başı ve tarihi dar sokak atmosferi.",
+          cost4: 0, mapQuery: "Cross Shinjuku Vision 3D Cat",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1120, note: "Toshimaen → Shinjuku (Toei Oedo Line direkt 20 dk)" },
+            taxi: { cost4: 4800, note: "Stüdyodan Shinjuku'ya taksi" },
+            bus: { cost4: 920, note: "Toei Bus" }
+          }
+        },
+        {
+          id: "d7_5", time: "19:30", type: "food", completed: false,
+          title: "Akşam Yemeği: Shinjuku Gyukatsu Motomura & Eve Dönüş",
+          desc: "Kişisel taş ızgarada pişirilen çıtır dana eti (Gyukatsu) ve ardından Kita-Senju eve dönüş.",
+          cost4: 9600, mapQuery: "Gyukatsu Motomura Shinjuku",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1480, note: "Shinjuku → Kanda/Ueno → Kita-Senju" },
+            taxi: { cost4: 6800, note: "Shinjuku'dan Kita-Senju eve taksi" },
+            bus: { cost4: 1400, note: "Metro/Otobüs" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 8,
+      date: "3 Aralık 2026, Perşembe",
+      city: "TOKYO",
+      title: "Gotemba Premium Outlets & Ginza Steak Akasaka",
+      subtitle: "Tam gün outlet alışverişi ve akşam A5 Wagyu Teppanyaki ziyafeti",
+      stops: [
+        {
+          id: "d8_1", time: "07:45", type: "food", completed: false,
+          title: "Kahvaltı: Tokyo İstasyonu Kahvaltı & Kahve",
+          desc: "Gotemba otobüs kalkış noktası olan Tokyo İstasyonu Yaesu çıkışında sabah kahvaltısı.",
+          cost4: 3600, mapQuery: "Tokyo Station Yaesu South Exit",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1120, note: "Kita-Senju → Ueno → Tokyo İstasyonu" },
+            taxi: { cost4: 4500, note: "Evden Tokyo İstasyonu'na taksi" },
+            bus: { cost4: 920, note: "Toei Bus" }
+          }
+        },
+        {
+          id: "d8_2", time: "09:00", type: "shop", completed: false,
+          title: "Gotemba Premium Outlets (Fuji Manzaralı Dev Outlet)",
+          desc: "290'dan fazla lüks ve spor markası, Tax-Free alışveriş ve açık havada Fuji Dağı manzarası.",
+          cost4: 0, mapQuery: "Gotemba Premium Outlets",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 14800, note: "JR Tokaido / Odakyu Romancecar + Ücretsiz Shuttle" },
+            taxi: { cost4: 42000, note: "95 km mesafe (Otobüs çok daha mantıklı)" },
+            bus: { cost4: 14400, note: "Tokyo İstasyonu Yaesu'dan direkt JR Highway Bus (~95 dk)" }
+          }
+        },
+        {
+          id: "d8_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle Yemeği: Gotemba Outlet Food Bazaar / Sawayaka Hamburg",
+          desc: "Outlet içinde öğle molası ve alışverişe devam.",
+          cost4: 7600, mapQuery: "Gotemba Premium Outlets Food Court",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 0, note: "Outlet içi" },
+            taxi: { cost4: 0, note: "Outlet içi" },
+            bus: { cost4: 0, note: "Outlet içi" }
+          }
+        },
+        {
+          id: "d8_4", time: "19:30", type: "food", completed: false,
+          title: "Akşam Yemeği: Ginza Steak Akasaka (銀座のステーキ 赤坂店)",
+          desc: "Şeflerin önünüzde pişirdiği sınırsız A5 Kuroge Wagyu biftek Teppanyaki deneyimi! (Kesinlikle önceden rezervasyon gerekli)",
+          cost4: 48000, mapQuery: "Ginza Steak Akasaka",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 15200, note: "Gotemba Dönüş Treni + Akasaka-mitsuke Metro" },
+            taxi: { cost4: 43000, note: "Direkt taksi" },
+            bus: { cost4: 15200, note: "Gotemba → Tokyo İstasyonu Otobüs + Akasaka-mitsuke Metro (Marunouchi)" }
+          }
+        },
+        {
+          id: "d8_5", time: "22:00", type: "transit", completed: false,
+          title: "Kita-Senju Eve Dönüş",
+          desc: "Akasaka'dan poşetlerle Kita-Senju evine konforlu dönüş.",
+          cost4: 0, mapQuery: TOKYO_HOME,
+          selectedMode: "taxi",
+          modes: {
+            train: { cost4: 1120, note: "Akasaka → Kita-Senju (Chiyoda Line TEK TREN aktarmasız!)" },
+            taxi: { cost4: 5800, note: "Alışveriş poşetleriyle kapıya direkt taksi" },
+            bus: { cost4: 920, note: "Şehir otobüsü" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 9,
+      date: "4 Aralık 2026, Cuma",
+      city: "TOKYO",
+      title: "Asakusa Senso-ji, Yodobashi Akiba & Bic Camera",
+      subtitle: "Tarihi Tokyo tapınağı ve devasa teknoloji/kamera mağazaları",
+      stops: [
+        {
+          id: "d9_1", time: "08:30", type: "food", completed: false,
+          title: "Kahvaltı: Asakusa Geleneksel Fırın & Matcha",
+          desc: "Asakusa Kaminarimon kapısı çevresinde taze Melonpan ve kahve.",
+          cost4: 3400, mapQuery: "Asakusa Kagetsudo",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 920, note: "Kita-Senju → Asakusa (Tobu Skytree Line, 12 dk direkt)" },
+            taxi: { cost4: 3200, note: "Evden Asakusa'ya taksi (~15 dk)" },
+            bus: { cost4: 880, note: "Toei Bus" }
+          }
+        },
+        {
+          id: "d9_2", time: "09:30", type: "sight", completed: false,
+          title: "Senso-ji Tapınağı & Nakamise Alışveriş Caddesi",
+          desc: "Tokyo'nun en eski Budist tapınağı, dev kırmızı fener ve geleneksel hediyelik eşyalar.",
+          cost4: 0, mapQuery: "Senso-ji Temple Asakusa",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Yürüme mesafesi" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d9_3", time: "12:00", type: "shop", completed: false,
+          title: "Yodobashi Camera Multimedia Akiba (Akihabara)",
+          desc: "9 katlı devasa elektronik, kamera, saat, figür ve oyun cenneti. (Tax-Free pasaportunuzu unutmayın)",
+          cost4: 0, mapQuery: "Yodobashi Camera Multimedia Akiba",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 840, note: "Asakusa → Akihabara (Tsukuba Express, 4 dk)" },
+            taxi: { cost4: 1800, note: "Asakusa'dan Akihabara'ya 4 kişi taksi" },
+            bus: { cost4: 880, note: "Şehir otobüsü" }
+          }
+        },
+        {
+          id: "d9_4", time: "14:30", type: "food", completed: false,
+          title: "Öğle Yemeği: Yodobashi Akiba 8. Kat Restoran Katı",
+          desc: "Tonkatsu, Sushi veya Hamburg seçeneklerinin bulunduğu gurme katı.",
+          cost4: 7200, mapQuery: "Yodobashi Akiba 8F Restaurant",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Bina içi" },
+            taxi: { cost4: 0, note: "Bina içi" },
+            bus: { cost4: 0, note: "Bina içi" }
+          }
+        },
+        {
+          id: "d9_5", time: "16:30", type: "shop", completed: false,
+          title: "Bic Camera Yurakucho / Akihabara Turu",
+          desc: "Fiyat karşılaştırması, kozmetik, valiz, elektronik ve Tax-Free + kupon indirimi ile alışveriş.",
+          cost4: 0, mapQuery: "Bic Camera Yurakucho",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 680, note: "Akihabara → Yurakucho (JR Yamanote Line, 6 dk)" },
+            taxi: { cost4: 1900, note: "4 kişi taksi" },
+            bus: { cost4: 880, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d9_6", time: "20:00", type: "food", completed: false,
+          title: "Akşam Yemeği: Ginza/Yurakucho Yakitori & Eve Dönüş",
+          desc: "Tren yolu kemerleri altındaki otantik Yurakucho Gado-shita restoranlarında yemek ve Kita-Senju eve dönüş.",
+          cost4: 8800, mapQuery: "Yurakucho Gado-shita",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1120, note: "Hibiya/Yurakucho → Kita-Senju (Hibiya/Chiyoda Line direkt)" },
+            taxi: { cost4: 5400, note: "Teknoloji kutularıyla direkt eve taksi" },
+            bus: { cost4: 920, note: "Otobüs" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 10,
+      date: "5 Aralık 2026, Cumartesi",
+      city: "TOKYO",
+      title: "Meiji Jingu, Harajuku, Shibuya Sky & Veda Yemeği",
+      subtitle: "Son tam gün: Orman tapınağı, Shibuya Crossing ve gün batımı manzarası",
+      stops: [
+        {
+          id: "d10_1", time: "09:00", type: "food", completed: false,
+          title: "Kahvaltı: Harajuku / Omotesando Pankek & Kahve",
+          desc: "Meiji tapınağı girişinde meşhur Japon sufle pankek veya specialty kahve.",
+          cost4: 5200, mapQuery: "Harajuku Station Cafe",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1120, note: "Kita-Senju → Meiji-jingumae (Chiyoda Line direkt 32 dk)" },
+            taxi: { cost4: 6200, note: "Evden Harajuku'ya taksi" },
+            bus: { cost4: 920, note: "Otobüs" }
+          }
+        },
+        {
+          id: "d10_2", time: "10:15", type: "sight", completed: false,
+          title: "Meiji Jingu Tapınağı & Takeshita Street",
+          desc: "Şehrin ortasındaki dev sedir ormanı içindeki tapınak ve renkli Harajuku sokakları.",
+          cost4: 0, mapQuery: "Meiji Jingu Shrine",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Yürüme mesafesi" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d10_3", time: "13:30", type: "food", completed: false,
+          title: "Öğle Yemeği: Shibuya Sushiro veya Uobei Dönen Suşi",
+          desc: "Tablet siparişli hızlı tren suşi deneyimi.",
+          cost4: 6400, mapQuery: "Uobei Shibuya Dogenzaka",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Omotesando/Cat Street üzerinden Shibuya'ya keyifli yürüyüş" },
+            taxi: { cost4: 1100, note: "Kısa mesafe taksi" },
+            bus: { cost4: 880, note: "Hachiko Bus" }
+          }
+        },
+        {
+          id: "d10_4", time: "16:00", type: "sight", completed: false,
+          title: "Shibuya Crossing, Hachiko & Shibuya Sky (Gün Batımı)",
+          desc: "229 metre yükseklikteki açık hava terasından Tokyo gün batımı ve gece ışıkları (Bilet 1 ay önceden alınmalı).",
+          cost4: 10000, mapQuery: "Shibuya Sky",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 0, note: "Shibuya Scramble Square" },
+            taxi: { cost4: 0, note: "Yürüme mesafesi" },
+            bus: { cost4: 0, note: "Yürüme mesafesi" }
+          }
+        },
+        {
+          id: "d10_5", time: "19:30", type: "food", completed: false,
+          title: "Veda Akşam Yemeği: Shibuya / Ueno Wagyu Shabu-Shabu",
+          desc: "Japonya'daki son akşam yemeği kutlaması ve Kita-Senju evine valiz toplamak için dönüş.",
+          cost4: 14000, mapQuery: "Shibuya Shabu Shabu",
+          selectedMode: "train",
+          modes: {
+            train: { cost4: 1240, note: "Shibuya → Kita-Senju (Hanzomon/Tobu Skytree Line direkt)" },
+            taxi: { cost4: 6500, note: "Son gece 4 kişi direkt eve taksi" },
+            bus: { cost4: 920, note: "Otobüs" }
+          }
+        }
+      ]
+    },
+    {
+      dayNum: 11,
+      date: "6 Aralık 2026, Pazar",
+      city: "TOKYO → NRT",
+      title: "Narita Havalimanı Transferi & İstanbul Dönüşü (10:10)",
+      subtitle: "Valizlerle direkt Airport Limousine Bus seçeneği ve uçağa biniş",
+      stops: [
+        {
+          id: "d11_1", time: "06:15", type: "food", completed: false,
+          title: "Evden Çıkış & Hızlı Kahvaltı (Kita-Senju)",
+          desc: "10:10 Narita uçağı için en geç 06:15'te evden çıkış. İstasyonda kahve ve atıştırmalık.",
+          cost4: 2400, mapQuery: "Kitasenju Station East Exit",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 0, note: "Evden istasyona yürüyüş" },
+            taxi: { cost4: 800, note: "Valizlerle istasyon durağına taksi" },
+            bus: { cost4: 0, note: "Evden Kita-Senju Doğu Çıkışı otobüs durağına 7 dk yürüyüş" }
+          }
+        },
+        {
+          id: "d11_2", time: "06:45", type: "transit", completed: false,
+          title: "Narita Havalimanı Transferi (Valiz Dostu Direkt Otobüs)",
+          desc: "Kita-Senju Doğu Çıkışı'ndan kalkan Airport Limousine Bus ile valizleri bagaja verip aktarmasız direkt Narita Terminal kapısına ulaşım (~75 dk).",
+          cost4: 0, mapQuery: "Narita International Airport",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 10800, note: "Kita-Senju → Nippori → Keisei Skyliner (~55 dk, valiz taşıma gerektirir)" },
+            taxi: { cost4: 26000, note: "Kapıdan Narita'ya özel VIP/Minivan taksi (~60 dk)" },
+            bus: { cost4: 11200, note: "Airport Limousine Bus (Kitasenju East Exit → Narita Direkt, valizler bagajda)" }
+          }
+        },
+        {
+          id: "d11_3", time: "08:15", type: "transit", completed: false,
+          title: "Narita Check-in, Tax-Free & 10:10 İstanbul Uçuşu",
+          desc: "Bagaj teslimi, pasaport kontrolü ve son duty-free alışverişi sonrası 10:10 uçağı ile dönüş.",
+          cost4: 0, mapQuery: "Narita Airport Terminal 1",
+          selectedMode: "bus",
+          modes: {
+            train: { cost4: 0, note: "Terminal içi" },
+            taxi: { cost4: 0, note: "Terminal içi" },
+            bus: { cost4: 0, note: "Otobüs doğrudan giden yolcu katı kapısında bırakır" }
+          }
+        }
+      ]
+    }
+  ]
+};
+
+let appState = null;
+let currentUser = null; // { role: 'admin' | 'guest', name: string }
+let selectedDay = 1;
+let syncTimer = null;
+
+// --- STORAGE & SERVER SYNC ---
+async function loadState() {
+  const localRaw = localStorage.getItem("japan_trip_2026_v4");
+  if (localRaw) {
+    try { appState = JSON.parse(localRaw); } catch (e) {}
+  }
+  if (!appState) {
+    appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+
+  // Try fetching from Docker FastAPI backend if running
+  try {
+    const res = await fetch("/api/state", { cache: "no-store" });
+    if (res.ok) {
+      const serverData = await res.json();
+      if (serverData && serverData.days && serverData.days.length > 0) {
+        appState = serverData;
+        localStorage.setItem("japan_trip_2026_v4", JSON.stringify(appState));
+      } else {
+        await pushStateToServer();
+      }
+      setSyncStatus(true);
+    }
+  } catch (e) {
+    setSyncStatus(false);
+  }
+}
+
+async function saveState() {
+  localStorage.setItem("japan_trip_2026_v4", JSON.stringify(appState));
+  await pushStateToServer();
+}
+
+async function pushStateToServer() {
+  try {
+    const res = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(appState)
+    });
+    setSyncStatus(res.ok);
+  } catch (e) {
+    setSyncStatus(false);
+  }
+}
+
+function setSyncStatus(isOnline) {
+  const el = document.getElementById("syncIndicator");
+  if (!el) return;
+  el.className = isOnline
+    ? "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"
+    : "w-2.5 h-2.5 rounded-full bg-amber-400";
+  el.title = isOnline ? "Canlı Sunucu Senkronizasyonu Aktif" : "Yerel Tarayıcı Modu";
+}
+
+// Background polling every 5 seconds for live multi-device sync
+setInterval(async () => {
+  if (!currentUser) return;
+  try {
+    const res = await fetch("/api/state", { cache: "no-store" });
+    if (res.ok) {
+      const serverData = await res.json();
+      if (serverData && serverData.days && JSON.stringify(serverData) !== JSON.stringify(appState)) {
+        appState = serverData;
+        localStorage.setItem("japan_trip_2026_v4", JSON.stringify(appState));
+        renderAll();
+      }
+      setSyncStatus(true);
+    }
+  } catch (e) {}
+}, 5000);
+
+// --- AUTH LOGIC ---
+function renderAuthGate() {
+  const listEl = document.getElementById("registeredUsersList");
+  const badgeEl = document.getElementById("userCountBadge");
+  const users = appState.registeredUsers || [];
+  badgeEl.textContent = `${users.length} / 4`;
+
+  if (users.length === 0) {
+    listEl.innerHTML = `<span class="text-slate-400 italic">Henüz kayıtlı yolcu yok (İlk 4 giriş yapan kişi kaydedilir).</span>`;
+  } else {
+    listEl.innerHTML = users.map(u => `<span class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-bold text-slate-700">👤 ${escapeHtml(u)}</span>`).join("");
+  }
+}
+
+function switchAuthTab(tab) {
+  document.getElementById("authError").classList.add("hidden");
+  document.getElementById("adminError").classList.add("hidden");
+  if (tab === "guest") {
+    document.getElementById("guestLoginForm").classList.remove("hidden");
+    document.getElementById("adminLoginForm").classList.add("hidden");
+    document.getElementById("tabGuest").className = "py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm transition";
+    document.getElementById("tabAdmin").className = "py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition";
+  } else {
+    document.getElementById("guestLoginForm").classList.add("hidden");
+    document.getElementById("adminLoginForm").classList.remove("hidden");
+    document.getElementById("tabAdmin").className = "py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm transition";
+    document.getElementById("tabGuest").className = "py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition";
+  }
+}
+
+async function handleGuestLogin() {
+  const rawName = document.getElementById("guestNameInput").value.trim();
+  const errEl = document.getElementById("authError");
+  if (!rawName) {
+    errEl.textContent = "Lütfen adınızı ve soyadınızı girin.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+
+  // Refresh latest state before checking 4-user cap
+  await loadState();
+  const users = appState.registeredUsers || [];
+  const existing = users.find(u => u.toLowerCase() === rawName.toLowerCase());
+
+  if (existing) {
+    currentUser = { role: "guest", name: existing };
+  } else {
+    if (users.length >= 4) {
+      errEl.textContent = "⛔ Kontenjan dolu! 4 kayıtlı yolcunun tamamı giriş yaptığı için yeni kullanıcı erişimi kilitlenmiştir.";
+      errEl.classList.remove("hidden");
+      renderAuthGate();
+      return;
+    }
+    appState.registeredUsers.push(rawName);
+    await saveState();
+    currentUser = { role: "guest", name: rawName };
+  }
+
+  sessionStorage.setItem("japan_session", JSON.stringify(currentUser));
+  document.getElementById("authModal").classList.add("hidden");
+  renderAll();
+}
+
+function handleAdminLogin() {
+  const pin = document.getElementById("adminPinInput").value.trim();
+  const errEl = document.getElementById("adminError");
+  if (pin !== appState.adminPin) {
+    errEl.textContent = "Hatalı Admin PIN kodu!";
+    errEl.classList.remove("hidden");
+    return;
+  }
+  currentUser = { role: "admin", name: "Admin" };
+  sessionStorage.setItem("japan_session", JSON.stringify(currentUser));
+  document.getElementById("authModal").classList.add("hidden");
+  renderAll();
+}
+
+function logoutUser() {
+  sessionStorage.removeItem("japan_session");
+  currentUser = null;
+  closeModal("settingsModal");
+  renderAuthGate();
+  document.getElementById("authModal").classList.remove("hidden");
+}
+
+// --- FORMATTING HELPERS ---
+function fmtJpy(val) {
+  return "¥" + Math.round(val || 0).toLocaleString("tr-TR");
+}
+function fmtTry(val) {
+  const tryVal = (val || 0) * (appState.exchangeRate || 0.235);
+  return "₺" + Math.round(tryVal).toLocaleString("tr-TR");
+}
+function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+}
+
+// --- CALCULATIONS ---
+function getStopTotalJpy(stop) {
+  const modeObj = stop.modes[stop.selectedMode || "train"] || { cost4: 0 };
+  return (Number(stop.cost4) || 0) + (Number(modeObj.cost4) || 0);
+}
+
+function calculateTotals() {
+  let grandTransport = 0;
+  let grandActivity = 0;
+  let totalStops = 0;
+  let completedStops = 0;
+
+  appState.days.forEach(d => {
+    d.stops.forEach(s => {
+      totalStops++;
+      if (s.completed) completedStops++;
+      const m = s.modes[s.selectedMode || "train"] || { cost4: 0 };
+      grandTransport += Number(m.cost4) || 0;
+      grandActivity += Number(s.cost4) || 0;
+    });
+  });
+
+  return {
+    grandTransport,
+    grandActivity,
+    grandTotal: grandTransport + grandActivity,
+    totalStops,
+    completedStops
+  };
+}
+
+// --- RENDERING ---
+function renderAll() {
+  if (!currentUser) return;
+  const isAdmin = currentUser.role === "admin";
+
+  // Role Badge & Controls
+  const roleBadge = document.getElementById("roleBadge");
+  roleBadge.textContent = isAdmin ? "👑 Admin" : `👤 ${currentUser.name}`;
+  roleBadge.className = isAdmin
+    ? "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800"
+    : "text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800";
+
+  document.getElementById("addStopBtn").classList.toggle("hidden", !isAdmin);
+
+  // Totals & Progress
+  const totals = calculateTotals();
+  document.getElementById("headerTotalJpy").textContent = fmtJpy(totals.grandTotal);
+  const pct = totals.totalStops ? Math.round((totals.completedStops / totals.totalStops) * 100) : 0;
+  document.getElementById("overallProgressText").textContent = `${totals.completedStops} / ${totals.totalStops} Tamamlandı (%${pct})`;
+  document.getElementById("overallProgressBar").style.width = `${pct}%`;
+
+  renderDayTabs();
+  renderNextTarget();
+  renderCurrentDay();
+}
+
+function renderDayTabs() {
+  const container = document.getElementById("dayTabs");
+  container.innerHTML = appState.days.map(d => {
+    const active = d.dayNum === selectedDay;
+    const allDone = d.stops.length > 0 && d.stops.every(s => s.completed);
+    return `
+      <button onclick="selectDay(${d.dayNum})"
+        class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+          active
+            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+        }">
+        <span>${d.dayNum}. Gün</span>
+        <span class="text-[10px] opacity-75">(${d.date.split(",")[0].replace(" 2026", "")})</span>
+        ${allDone ? "<span>✅</span>" : ""}
+      </button>
+    `;
+  }).join("");
+}
+
+function renderNextTarget() {
+  const dayObj = appState.days.find(d => d.dayNum === selectedDay) || appState.days[0];
+  let nextStop = dayObj.stops.find(s => !s.completed);
+  let targetDay = dayObj;
+
+  if (!nextStop) {
+    for (const d of appState.days) {
+      const found = d.stops.find(s => !s.completed);
+      if (found) {
+        nextStop = found;
+        targetDay = d;
+        break;
+      }
+    }
+  }
+
+  const dayTag = document.getElementById("nextTargetDayTag");
+  const bodyEl = document.getElementById("nextTargetBody");
+
+  if (!nextStop) {
+    dayTag.textContent = "Tüm Tur Tamamlandı!";
+    bodyEl.innerHTML = `<div class="text-base font-bold text-emerald-300">🎉 Tebrikler! 11 günlük Japonya turundaki tüm hedefler tamamlandı.</div>`;
+    return;
+  }
+
+  dayTag.textContent = `${targetDay.dayNum}. Gün • Saat ${nextStop.time}`;
+  const modeKey = nextStop.selectedMode || "train";
+  const modeInfo = nextStop.modes[modeKey] || { cost4: 0, note: "" };
+  const modeLabels = { train: "🚆 Tren / Metro", taxi: "🚕 Taksi (4 Kişi)", bus: "🚌 Otobüs" };
+  const total4 = getStopTotalJpy(nextStop);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextStop.mapQuery || nextStop.title)}`;
+
+  bodyEl.innerHTML = `
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1.5">
+        <h3 class="text-lg sm:text-xl font-extrabold text-white">${escapeHtml(nextStop.title)}</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(nextStop.desc)}</p>
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <span class="px-2.5 py-1 rounded-lg bg-white/10 text-xs font-bold text-amber-300">
+            ${modeLabels[modeKey]}: ${escapeHtml(modeInfo.note)}
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-xs font-bold text-emerald-300">
+            4 Kişi Maliyet: ${fmtJpy(total4)} (${fmtTry(total4)})
+          </span>
+        </div>
+      </div>
+      <div class="flex sm:flex-col gap-2 shrink-0">
+        <a href="${mapsUrl}" target="_blank" rel="noopener"
+          class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold text-center shadow-lg transition">
+          📍 Yol Tarifi Al
+        </a>
+        ${currentUser.role === "admin" ? `
+          <button onclick="toggleStopComplete('${nextStop.id}')"
+            class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+            ✓ Tamamlandı İşaretle
+          </button>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderCurrentDay() {
+  const dayObj = appState.days.find(d => d.dayNum === selectedDay) || appState.days[0];
+  const isAdmin = currentUser.role === "admin";
+
+  document.getElementById("currentDayCityBadge").textContent = dayObj.city;
+  document.getElementById("currentDayTitle").textContent = `${dayObj.dayNum}. Gün: ${dayObj.title}`;
+  document.getElementById("currentDaySub").textContent = `${dayObj.date} • ${dayObj.subtitle}`;
+
+  const dayTotal = dayObj.stops.reduce((acc, s) => acc + getStopTotalJpy(s), 0);
+  document.getElementById("dayTotalJpy").textContent = fmtJpy(dayTotal);
+  document.getElementById("dayTotalTry").textContent = `(${fmtTry(dayTotal)})`;
+
+  const typeBadges = {
+    sight: { label: "Gezi / Aktivite", cls: "bg-indigo-50 text-indigo-700" },
+    food: { label: "Kahvaltı / Yemek", cls: "bg-amber-50 text-amber-700" },
+    shop: { label: "Alışveriş", cls: "bg-purple-50 text-purple-700" },
+    transit: { label: "Transfer / Dönüş", cls: "bg-slate-100 text-slate-700" }
+  };
+
+  const container = document.getElementById("stopsContainer");
+  container.innerHTML = dayObj.stops.map(stop => {
+    const badge = typeBadges[stop.type] || typeBadges.sight;
+    const modeKey = stop.selectedMode || "train";
+    const activeMode = stop.modes[modeKey] || { cost4: 0, note: "" };
+    const total4 = getStopTotalJpy(stop);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.mapQuery || stop.title)}`;
+
+    return `
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border transition shadow-sm ${
+        stop.completed ? "border-emerald-200 bg-emerald-50/20 opacity-85" : "border-slate-200/90"
+      }">
+        <div class="flex items-start gap-3.5">
+          <!-- CHECKBOX -->
+          <button onclick="${isAdmin ? `toggleStopComplete('${stop.id}')` : ""}"
+            class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition ${
+              stop.completed
+                ? "bg-emerald-500 border-emerald-500 text-white"
+                : isAdmin
+                  ? "border-slate-300 hover:border-rose-500 cursor-pointer"
+                  : "border-slate-200 cursor-default"
+            }" title="${isAdmin ? "Tamamlandı olarak işaretle" : "Sadece Admin işaretleyebilir"}">
+            ${stop.completed ? "✓" : ""}
+          </button>
+
+          <div class="flex-1 min-w-0">
+            <!-- TOP META -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-xs font-extrabold">${escapeHtml(stop.time)}</span>
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${badge.cls}">${badge.label}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-extrabold text-slate-900">${fmtJpy(total4)}</span>
+                <span class="text-xs font-bold text-emerald-600 ml-1">${fmtTry(total4)}</span>
+                <span class="text-[10px] text-slate-400 block">4 Kişi Toplam (${fmtJpy(total4 / 4)}/kişi)</span>
+              </div>
+            </div>
+
+            <!-- TITLE & DESC -->
+            <h3 class="text-base font-extrabold text-slate-900 ${stop.completed ? "line-through text-slate-400" : ""}">
+              ${escapeHtml(stop.title)}
+            </h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${escapeHtml(stop.desc)}</p>
+
+            <!-- COST BREAKDOWN PILLS -->
+            ${stop.cost4 > 0 ? `
+              <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 text-[11px] font-bold">
+                <span>🎟️ Mekan / Yemek (4 Kişi):</span>
+                <span>${fmtJpy(stop.cost4)} (${fmtTry(stop.cost4)})</span>
+              </div>
+            ` : ""}
+
+            <!-- TRANSPORT MODE SELECTOR -->
+            <div class="mt-3 pt-3 border-t border-slate-100">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase">Ulaşım Tercihi ${isAdmin ? "(Seçim Yapın)" : "(Admin Seçimi)"}:</span>
+                <div class="flex flex-wrap gap-1.5">
+                  ${["train", "taxi", "bus"].map(mKey => {
+                    const labels = { train: "🚆 Tren/Metro", taxi: "🚕 Taksi (4 Kişi)", bus: "🚌 Otobüs" };
+                    const isSelected = modeKey === mKey;
+                    const mCost = stop.modes[mKey]?.cost4 || 0;
+                    return `
+                      <button onclick="${isAdmin ? `selectTransportMode('${stop.id}', '${mKey}')` : ""}"
+                        class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold border transition ${
+                          isSelected
+                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                            : isAdmin
+                              ? "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                              : "bg-slate-50 text-slate-400 border-slate-100 cursor-default"
+                        }">
+                        ${labels[mKey]} • ${fmtJpy(mCost)}
+                      </button>
+                    `;
+                  }).join("")}
+                </div>
+              </div>
+
+              <!-- ACTIVE TRANSPORT NOTE & ACTIONS -->
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl text-xs">
+                <div class="text-slate-700 font-medium">
+                  <span class="font-bold text-indigo-700">Rota:</span> ${escapeHtml(activeMode.note)}
+                  <span class="text-slate-400 mx-1">•</span>
+                  <span class="font-bold text-slate-900">${fmtJpy(activeMode.cost4)} (${fmtTry(activeMode.cost4)})</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <a href="${mapsUrl}" target="_blank" rel="noopener"
+                    class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-rose-400 text-rose-600 font-bold text-[11px] transition">
+                    📍 Harita
+                  </a>
+                  ${isAdmin ? `
+                    <button onclick="openEditModal('${stop.id}')"
+                      class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px]">
+                      ✏️ Düzenle
+                    </button>
+                    <button onclick="deleteStop('${stop.id}')"
+                      class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:bg-rose-50 text-rose-600 font-bold text-[11px]">
+                      🗑️
+                    </button>
+                  ` : ""}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// --- INTERACTIONS ---
+function selectDay(dayNum) {
+  selectedDay = dayNum;
+  renderAll();
+}
+
+async function toggleStopComplete(stopId) {
+  if (currentUser?.role !== "admin") return;
+  for (const d of appState.days) {
+    const s = d.stops.find(x => x.id === stopId);
+    if (s) {
+      s.completed = !s.completed;
+      break;
+    }
+  }
+  await saveState();
+  renderAll();
+}
+
+async function selectTransportMode(stopId, mode) {
+  if (currentUser?.role !== "admin") return;
+  for (const d of appState.days) {
+    const s = d.stops.find(x => x.id === stopId);
+    if (s) {
+      s.selectedMode = mode;
+      break;
+    }
+  }
+  await saveState();
+  renderAll();
+}
+
+// --- BUDGET MODAL ---
+function openBudgetModal() {
+  const totals = calculateTotals();
+  document.getElementById("exchangeRateInput").value = appState.exchangeRate;
+  document.getElementById("budgetTransportJpy").textContent = fmtJpy(totals.grandTransport);
+  document.getElementById("budgetTransportTry").textContent = fmtTry(totals.grandTransport);
+  document.getElementById("budgetActivityJpy").textContent = fmtJpy(totals.grandActivity);
+  document.getElementById("budgetActivityTry").textContent = fmtTry(totals.grandActivity);
+  document.getElementById("budgetGrandJpy").textContent = fmtJpy(totals.grandTotal);
+  document.getElementById("budgetGrandTry").textContent = `${fmtTry(totals.grandTotal)} (${fmtJpy(totals.grandTotal / 4)} / kişi)`;
+
+  const tbody = document.getElementById("budgetBreakdownBody");
+  tbody.innerHTML = appState.days.map(d => {
+    let tr = 0, ac = 0;
+    d.stops.forEach(s => {
+      ac += Number(s.cost4) || 0;
+      tr += Number(s.modes[s.selectedMode || "train"]?.cost4) || 0;
+    });
+    const sum = tr + ac;
+    return `
+      <tr>
+        <td class="p-3 font-bold text-slate-800">${d.dayNum}. Gün <span class="text-slate-400 font-normal">(${d.city})</span></td>
+        <td class="p-3 text-slate-600">${fmtJpy(tr)}</td>
+        <td class="p-3 text-slate-600">${fmtJpy(ac)}</td>
+        <td class="p-3 text-right font-extrabold text-slate-900">${fmtJpy(sum)} <span class="text-emerald-600 font-semibold">(${fmtTry(sum)})</span></td>
+      </tr>
+    `;
+  }).join("");
+
+  document.getElementById("budgetModal").classList.remove("hidden");
+}
+
+async function updateExchangeRate(val) {
+  const num = parseFloat(val);
+  if (num > 0) {
+    appState.exchangeRate = num;
+    await saveState();
+    openBudgetModal();
+    renderAll();
+  }
+}
+
+// --- ADD / EDIT / DELETE STOPS (ADMIN) ---
+function openAddModal() {
+  if (currentUser?.role !== "admin") return;
+  document.getElementById("editModalTitle").textContent = "Yeni Durak / Öğün Ekle";
+  document.getElementById("editStopId").value = "";
+  document.getElementById("editTime").value = "15:00";
+  document.getElementById("editType").value = "sight";
+  document.getElementById("editTitle").value = "";
+  document.getElementById("editDesc").value = "";
+  document.getElementById("editCost4").value = "0";
+  document.getElementById("editMapQuery").value = "";
+  document.getElementById("editTrainCost").value = "0";
+  document.getElementById("editTrainNote").value = "Metro / Tren";
+  document.getElementById("editTaxiCost").value = "0";
+  document.getElementById("editTaxiNote").value = "4 Kişi Taksi";
+  document.getElementById("editBusCost").value = "0";
+  document.getElementById("editBusNote").value = "Otobüs";
+  document.getElementById("editModal").classList.remove("hidden");
+}
+
+function openEditModal(stopId) {
+  if (currentUser?.role !== "admin") return;
+  const dayObj = appState.days.find(d => d.dayNum === selectedDay);
+  const stop = dayObj.stops.find(s => s.id === stopId);
+  if (!stop) return;
+
+  document.getElementById("editModalTitle").textContent = "Durağı Düzenle";
+  document.getElementById("editStopId").value = stop.id;
+  document.getElementById("editTime").value = stop.time;
+  document.getElementById("editType").value = stop.type;
+  document.getElementById("editTitle").value = stop.title;
+  document.getElementById("editDesc").value = stop.desc;
+  document.getElementById("editCost4").value = stop.cost4;
+  document.getElementById("editMapQuery").value = stop.mapQuery || stop.title;
+  document.getElementById("editTrainCost").value = stop.modes.train?.cost4 || 0;
+  document.getElementById("editTrainNote").value = stop.modes.train?.note || "";
+  document.getElementById("editTaxiCost").value = stop.modes.taxi?.cost4 || 0;
+  document.getElementById("editTaxiNote").value = stop.modes.taxi?.note || "";
+  document.getElementById("editBusCost").value = stop.modes.bus?.cost4 || 0;
+  document.getElementById("editBusNote").value = stop.modes.bus?.note || "";
+  document.getElementById("editModal").classList.remove("hidden");
+}
+
+async function saveStopEdit() {
+  if (currentUser?.role !== "admin") return;
+  const id = document.getElementById("editStopId").value;
+  const dayObj = appState.days.find(d => d.dayNum === selectedDay);
+
+  const payload = {
+    id: id || "custom_" + Date.now(),
+    time: document.getElementById("editTime").value.trim() || "12:00",
+    type: document.getElementById("editType").value,
+    title: document.getElementById("editTitle").value.trim() || "Yeni Durak",
+    desc: document.getElementById("editDesc").value.trim(),
+    cost4: Number(document.getElementById("editCost4").value) || 0,
+    mapQuery: document.getElementById("editMapQuery").value.trim(),
+    completed: false,
+    selectedMode: "train",
+    modes: {
+      train: { cost4: Number(document.getElementById("editTrainCost").value) || 0, note: document.getElementById("editTrainNote").value.trim() },
+      taxi: { cost4: Number(document.getElementById("editTaxiCost").value) || 0, note: document.getElementById("editTaxiNote").value.trim() },
+      bus: { cost4: Number(document.getElementById("editBusCost").value) || 0, note: document.getElementById("editBusNote").value.trim() }
+    }
+  };
+
+  if (id) {
+    const idx = dayObj.stops.findIndex(s => s.id === id);
+    if (idx !== -1) {
+      payload.completed = dayObj.stops[idx].completed;
+      payload.selectedMode = dayObj.stops[idx].selectedMode;
+      dayObj.stops[idx] = payload;
+    }
+  } else {
+    dayObj.stops.push(payload);
+    dayObj.stops.sort((a, b) => a.time.localeCompare(b.time));
+  }
+
+  await saveState();
+  closeModal("editModal");
+  renderAll();
+}
+
+async function deleteStop(stopId) {
+  if (currentUser?.role !== "admin") return;
+  if (!confirm("Bu durağı plandan silmek istediğinize emin misiniz?")) return;
+  const dayObj = appState.days.find(d => d.dayNum === selectedDay);
+  dayObj.stops = dayObj.stops.filter(s => s.id !== stopId);
+  await saveState();
+  renderAll();
+}
+
+// --- SETTINGS & MODALS ---
+function openTipsModal() {
+  document.getElementById("tipsModal").classList.remove("hidden");
+}
+
+function openSettingsModal() {
+  const isAdmin = currentUser?.role === "admin";
+  document.getElementById("currentSessionInfo").textContent = isAdmin
+    ? "Yetki: Admin (Tam Düzenleme & Kontrol)"
+    : `Yolcu: ${currentUser?.name} (Sadece İzleme Modu)`;
+
+  const adminBox = document.getElementById("adminControlsBox");
+  adminBox.classList.toggle("hidden", !isAdmin);
+
+  if (isAdmin) {
+    renderAdminUserList();
+  }
+  document.getElementById("settingsModal").classList.remove("hidden");
+}
+
+function renderAdminUserList() {
+  const container = document.getElementById("adminUserManager");
+  const users = appState.registeredUsers || [];
+  if (users.length === 0) {
+    container.innerHTML = `<div class="text-slate-400 italic">Henüz kayıtlı yolcu yok.</div>`;
+    return;
+  }
+  container.innerHTML = users.map((u, i) => `
+    <div class="flex items-center justify-between bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+      <span class="font-bold text-slate-700">${i + 1}. ${escapeHtml(u)}</span>
+      <button onclick="removeRegisteredUser(${i})" class="text-rose-600 font-bold hover:underline">Sil</button>
+    </div>
+  `).join("");
+}
+
+async function removeRegisteredUser(idx) {
+  appState.registeredUsers.splice(idx, 1);
+  await saveState();
+  renderAdminUserList();
+}
+
+async function changeAdminPin() {
+  const val = document.getElementById("newAdminPinInput").value.trim();
+  if (val.length < 4) return alert("PIN en az 4 karakter olmalıdır.");
+  appState.adminPin = val;
+  await saveState();
+  document.getElementById("newAdminPinInput").value = "";
+  alert("Admin PIN güncellendi!");
+}
+
+async function resetAllData() {
+  if (!confirm("Tüm işaretlemeler ve değişiklikler sıfırlanacak. Emin misiniz?")) return;
+  const keepUsers = appState.registeredUsers;
+  const keepPin = appState.adminPin;
+  appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  appState.registeredUsers = keepUsers;
+  appState.adminPin = keepPin;
+  await saveState();
+  closeModal("settingsModal");
+  renderAll();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
+// --- INIT ---
+(async function init() {
+  await loadState();
+  const savedSession = sessionStorage.getItem("japan_session");
+  if (savedSession) {
+    try {
+      currentUser = JSON.parse(savedSession);
+      document.getElementById("authModal").classList.add("hidden");
+      renderAll();
+      return;
+    } catch (e) {}
+  }
+  renderAuthGate();
+})();
+</script>
+</body>
+</html>
