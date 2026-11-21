@@ -1313,3 +1313,931 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ device_token: currentUser.device_token, avatar_base64: b64
+                });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(prev => ({ ...prev, ...data.user }));
+        if (data.users) setRegisteredUsers(data.users);
+      }
+    }
+  };
+
+  if (!appState || loadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-sm font-extrabold text-slate-500">Japonya Rotamız Yükleniyor...</div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="bg-white dark:bg-slate-900 rounded-[32px] max-w-md w-full p-6 shadow-2xl border border-white/60 dark:border-slate-800 max-h-[92vh] overflow-y-auto"
+        >
+          <div className="text-center mb-4">
+            <span className="inline-block px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-extrabold uppercase mb-1.5">
+              26 Kas – 06 Ara 2026
+            </span>
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Japonya Rotamız 🇯🇵</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tokyo & Osaka • Cihaz Kilitli Grup Rehberi</p>
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3.5 mb-4 border border-slate-200/70 dark:border-slate-700">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+              <span>Kayıtlı Yolcular</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-extrabold">
+                {registeredUsers.length} / 4
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {registeredUsers.length === 0 ? (
+                <span className="text-slate-400 italic">Henüz kayıtlı cihaz yok.</span>
+              ) : (
+                registeredUsers.map(u => (
+                  <div key={u.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 font-bold">
+                    {u.avatar_url ? <img src={u.avatar_url} className="w-4 h-4 rounded-full object-cover" /> : <span>👤</span>}
+                    <span>{u.name}</span>
+                    <Lock className="w-3 h-3 text-emerald-500" />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-4">
+            <button onClick={() => { setAuthTab("guest"); setAuthError(""); }} className={`py-2.5 rounded-xl text-xs font-extrabold transition ${authTab === "guest" ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs" : "text-slate-500"}`}>
+              👤 Yolcu Girişi
+            </button>
+            <button onClick={() => { setAuthTab("admin"); setAuthError(""); }} className={`py-2.5 rounded-xl text-xs font-extrabold transition ${authTab === "admin" ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs" : "text-slate-500"}`}>
+              👑 Admin Girişi
+            </button>
+          </div>
+
+          {authTab === "guest" ? (
+            <div className="space-y-3">
+              <div className="flex flex-col items-center">
+                <label className="cursor-pointer relative">
+                  <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-sky-400 flex flex-col items-center justify-center overflow-hidden">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} className="w-full h-full object-cover" />
+                    ) : (
+                      <>
+                        <Camera className="w-6 h-6 text-sky-500" />
+                        <span className="text-[9px] font-extrabold text-slate-500 mt-1">Fotoğraf Seç</span>
+                      </>
+                    )}
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-rose-600 text-white text-xs font-extrabold flex items-center justify-center shadow">+</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarChange(e, false)} />
+                </label>
+              </div>
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1">Adınız Soyadınız</label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={e => setGuestName(e.target.value)}
+                  placeholder="Örn: Aykut Avcı"
+                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold"
+                />
+              </div>
+              {authError && <p className="text-xs text-rose-500 font-bold">{authError}</p>}
+              <button onClick={handleGuestSubmit} className="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-rose-600 text-white font-extrabold text-sm shadow-lg">
+                Cihazımı Kaydet & Giriş Yap ↗
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1">Admin PIN Kodu</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  value={adminPinInput}
+                  onChange={e => setAdminPinInput(e.target.value)}
+                  placeholder="PIN (Varsayılan: 2026)"
+                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold"
+                />
+              </div>
+              {authError && <p className="text-xs text-rose-500 font-bold">{authError}</p>}
+              <button onClick={handleAdminSubmit} className="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-extrabold text-sm shadow-lg">
+                Yönetici Olarak Gir ↗
+              </button>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
+
+  const isAdmin = currentUser.role === "admin";
+  const rate = appState.exchangeRate || 0.316;
+  const fmtJpy = (v) => "¥" + Math.round(v || 0).toLocaleString("tr-TR");
+  const fmtTry = (v) => "₺" + Math.round((v || 0) * rate).toLocaleString("tr-TR");
+
+  const getStopTotal = (st) => {
+    const m = st.modes?.[st.selectedMode || st.recommendedMode || "train"] || { cost4: 0 };
+    return (Number(st.cost4) || 0) + (Number(m.cost4) || 0);
+  };
+
+  let grandTransport = 0, grandActivity = 0;
+  appState.days.forEach(d => d.stops.forEach(st => {
+    grandActivity += Number(st.cost4) || 0;
+    grandTransport += Number(st.modes?.[st.selectedMode || st.recommendedMode || "train"]?.cost4) || 0;
+  }));
+  const grandTotal = grandTransport + grandActivity;
+
+  const currentDayObj = appState.days.find(d => d.dayNum === selectedDay) || appState.days[0];
+
+  const toggleComplete = (stopId) => {
+    if (!isAdmin) return;
+    const next = {
+      ...appState,
+      days: appState.days.map(d => ({
+        ...d,
+        stops: d.stops.map(s => s.id === stopId ? { ...s, completed: !s.completed } : s)
+      }))
+    };
+    persistState(next);
+  };
+
+  const changeTransport = (stopId, mode) => {
+    if (!isAdmin) return;
+    const next = {
+      ...appState,
+      days: appState.days.map(d => ({
+        ...d,
+        stops: d.stops.map(s => s.id === stopId ? { ...s, selectedMode: mode } : s)
+      }))
+    };
+    persistState(next);
+  };
+
+  const moveStopOrder = (idx, dir) => {
+    if (!isAdmin) return;
+    const targetIdx = idx + dir;
+    if (targetIdx < 0 || targetIdx >= currentDayObj.stops.length) return;
+    const newStops = [...currentDayObj.stops];
+    [newStops[idx], newStops[targetIdx]] = [newStops[targetIdx], newStops[idx]];
+    const next = {
+      ...appState,
+      days: appState.days.map(d => d.dayNum === selectedDay ? { ...d, stops: newStops } : d)
+    };
+    persistState(next);
+  };
+
+  const deleteStopItem = (stopId) => {
+    if (!isAdmin || !window.confirm("Bu durağı silmek istiyor musunuz?")) return;
+    const next = {
+      ...appState,
+      days: appState.days.map(d => d.dayNum === selectedDay ? { ...d, stops: d.stops.filter(s => s.id !== stopId) } : d)
+    };
+    persistState(next);
+  };
+
+  const saveStopModal = () => {
+    if (!editingStop) return;
+    const isNew = !editingStop.id;
+    const prepared = {
+      ...editingStop,
+      id: editingStop.id || `custom_${Date.now()}`,
+      cost4: Number(editingStop.cost4) || 0,
+      selectedMode: editingStop.recommendedMode || "train"
+    };
+    const next = {
+      ...appState,
+      days: appState.days.map(d => {
+        if (d.dayNum !== selectedDay) return d;
+        const list = isNew ? [...d.stops, prepared] : d.stops.map(s => s.id === prepared.id ? prepared : s);
+        return { ...d, stops: list };
+      })
+    };
+    persistState(next);
+    setEditingStop(null);
+  };
+
+  const addNote = () => {
+    if (!newNoteText.trim()) return;
+    const item = {
+      id: Date.now(),
+      author: currentUser.name,
+      text: newNoteText.trim(),
+      time: new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+    };
+    persistState({ ...appState, groupNotes: [item, ...(appState.groupNotes || [])] });
+    setNewNoteText("");
+  };
+
+  const deleteNote = (id) => {
+    persistState({ ...appState, groupNotes: (appState.groupNotes || []).filter(n => n.id !== id) });
+  };
+
+  const removeRegisteredDevice = async (userId) => {
+    if (!window.confirm("Bu kullanıcının cihaz kilidi kaldırılacak. Emin misiniz?")) return;
+    const res = await fetch("/api/admin/remove_user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, admin_pin: appState.adminPin || "2026" })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setRegisteredUsers(data.users || []);
+    }
+  };
+
+  const focusStopCard = (stopId) => {
+    setFocusedStopId(stopId);
+    const el = document.getElementById(`stop-card-${stopId}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const avatarColors = ["bg-rose-600", "bg-indigo-600", "bg-amber-500", "bg-emerald-600"];
+
+  return (
+    <div className="min-h-screen">
+      {/* CLEAN TURKISH HEADER */}
+      <header className="max-w-2xl mx-auto px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          {/* 4-Member Circular Photo Avatars */}
+          <div className="flex items-center -space-x-2">
+            {[0, 1, 2, 3].map(idx => {
+              const u = registeredUsers[idx];
+              if (!u) {
+                return (
+                  <div key={idx} className="w-9 h-9 rounded-full bg-white/80 dark:bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 border border-dashed border-slate-300 dark:border-slate-600">
+                    ?
+                  </div>
+                );
+              }
+              return u.avatar_url ? (
+                <img
+                  key={u.id}
+                  onClick={() => !isAdmin && setActiveModal("profile")}
+                  src={u.avatar_url}
+                  alt={u.name}
+                  title={u.name}
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 shadow-xs cursor-pointer"
+                />
+              ) : (
+                <div
+                  key={u.id}
+                  onClick={() => !isAdmin && setActiveModal("profile")}
+                  className={`w-9 h-9 rounded-full ${avatarColors[idx]} text-white text-xs font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-xs cursor-pointer`}
+                >
+                  {u.name.slice(0, 2).toUpperCase()}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setActiveModal("notes")} className="glass-card px-3 h-9 rounded-full border border-white/80 dark:border-slate-700/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-2xs active:scale-95 transition">
+              <span>📌</span>
+              <span>Not ({(appState.groupNotes || []).length})</span>
+            </button>
+            <button onClick={() => setActiveModal("cards")} className="glass-card px-3 h-9 rounded-full border border-white/80 dark:border-slate-700/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-2xs active:scale-95 transition">
+              <span>🗣️</span>
+              <span>Kartlar</span>
+            </button>
+            <button onClick={toggleTheme} className="glass-card w-9 h-9 rounded-full border border-white/80 dark:border-slate-700/80 text-slate-700 dark:text-amber-300 flex items-center justify-center shadow-2xs active:scale-95 transition">
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Clean Turkish Title */}
+        <div className="mb-3" onClick={() => !isAdmin && setActiveModal("profile")}>
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+            <span>{isAdmin ? "👑 Admin Modu" : `👤 ${currentUser.name}`}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>• 26 Kas – 6 Ara • Tokyo & Osaka</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-0.5">
+            Japonya Rotamız 🇯🇵
+          </h1>
+        </div>
+
+        {/* Horizontal Day Selector Pills */}
+        <div className="overflow-x-auto no-scrollbar flex gap-1.5 pb-2">
+          {appState.days.map(d => {
+            const active = d.dayNum === selectedDay;
+            const done = d.stops.length > 0 && d.stops.every(s => s.completed);
+            return (
+              <button
+                key={d.dayNum}
+                onClick={() => { setSelectedDay(d.dayNum); setFocusedStopId(null); }}
+                className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-extrabold border transition flex items-center gap-1 ${
+                  active
+                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                    : "glass-card text-slate-600 dark:text-slate-300 border-white/80 dark:border-slate-800"
+                }`}
+              >
+                <span>{d.dayNum}. Gün</span>
+                <span className="text-[10px] opacity-80">{d.date.split(" ")[0]} {d.date.split(" ")[1].slice(0, 3)}</span>
+                {done && <span>✅</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Segmented Control: Timeline vs Interactive Map */}
+        <div className="glass-card p-1 rounded-2xl border border-white/80 dark:border-slate-800 grid grid-cols-2 gap-1 shadow-2xs mt-1">
+          <button
+            onClick={() => setMainView("timeline")}
+            className={`py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
+              mainView === "timeline"
+                ? "bg-slate-900 dark:bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" /> Zaman Çizelgesi
+          </button>
+          <button
+            onClick={() => setMainView("map")}
+            className={`py-2 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
+              mainView === "map"
+                ? "bg-slate-900 dark:bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            <MapPin className="w-3.5 h-3.5" /> Harita Görünümü
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      {mainView === "map" ? (
+        <section className="max-w-2xl mx-auto px-4 pt-2">
+          <InteractiveRouteMap dayObj={currentDayObj} onSelectStop={(st) => setDetailStop(st)} />
+        </section>
+      ) : (
+        <main className="max-w-2xl mx-auto px-4 pt-2 space-y-4">
+          {/* HORIZONTAL SCROLLABLE CINEMATIC SHOWCASE CARDS */}
+          <div className="overflow-x-auto no-scrollbar flex gap-2.5 pb-1">
+            {currentDayObj.stops.map((st, idx) => (
+              <div
+                key={st.id}
+                onClick={() => focusStopCard(st.id)}
+                className={`relative w-36 h-44 rounded-[24px] overflow-hidden shrink-0 cursor-pointer shadow-md border-2 transition ${
+                  focusedStopId === st.id ? "border-blue-500 scale-[1.02]" : "border-white/60 dark:border-slate-800"
+                }`}
+              >
+                <img src={LANDMARK_PHOTOS[st.visual] || LANDMARK_PHOTOS.castle} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent" />
+                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/45 backdrop-blur-xs text-white text-[10px] font-extrabold">
+                  {idx + 1} • {st.time}
+                </div>
+                {st.completed && (
+                  <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                    <Check className="w-3 h-3" />
+                  </div>
+                )}
+                <div className="absolute bottom-2.5 inset-x-2.5 text-white">
+                  <div className="text-[10px] text-white/75 font-bold">{VISUAL_KANJI[st.visual] || "日本"}</div>
+                  <div className="text-xs font-extrabold leading-tight line-clamp-2 mt-0.5">{st.title}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Selected Day Summary Banner */}
+          <div className="glass-card rounded-[24px] p-4 border border-white/80 dark:border-slate-800 shadow-2xs flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+                  {currentDayObj.city}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                  ⚡ {currentDayObj.fatigue}
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
+                {currentDayObj.dayNum}. Gün: {currentDayObj.title}
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{currentDayObj.date}</p>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => setEditingStop({
+                  id: "", time: "15:00", type: "sight", visual: "castle", title: "", desc: "",
+                  cost4: 0, coords: "", distanceSummary: "2 km • 10 dk", recommendedMode: "train",
+                  modes: {
+                    train: { cost4: 0, note: "Metro / Tren" },
+                    taxi: { cost4: 0, note: "4 Kişi Taksi" },
+                    bus: { cost4: 0, note: "Otobüs" },
+                    walk: { cost4: 0, note: "Yürüyüş" }
+                  }
+                })}
+                className="px-3.5 py-2 rounded-full bg-slate-900 dark:bg-blue-600 text-white text-xs font-extrabold shrink-0 flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Durak
+              </button>
+            )}
+          </div>
+
+          {/* Clean Itinerary Stop Cards */}
+          <div className="space-y-3.5">
+            {currentDayObj.stops.map((stop, idx) => {
+              const modeKey = stop.selectedMode || stop.recommendedMode || "train";
+              const recKey = stop.recommendedMode || "train";
+              const activeMode = stop.modes?.[modeKey] || { cost4: 0, note: "" };
+              const total4 = getStopTotal(stop);
+              const modeNames = { train: "Tren / Metro", taxi: "Taksi (4 Kişi)", bus: "Otobüs", walk: "Yürüyüş" };
+
+              return (
+                <motion.div
+                  id={`stop-card-${stop.id}`}
+                  key={stop.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`glass-card rounded-[26px] border overflow-hidden transition shadow-2xs ${
+                    focusedStopId === stop.id
+                      ? "ring-2 ring-blue-500 border-blue-400"
+                      : stop.completed
+                        ? "border-emerald-300 dark:border-emerald-800 opacity-75"
+                        : "border-white/90 dark:border-slate-800"
+                  }`}
+                >
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={LANDMARK_PHOTOS[stop.visual] || LANDMARK_PHOTOS.castle}
+                        alt=""
+                        onClick={() => setDetailStop(stop)}
+                        className="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xs cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded-full bg-slate-900 dark:bg-slate-700 text-white text-[10px] font-extrabold">{stop.time}</span>
+                            {stop.distanceSummary && <span className="text-[10px] font-bold text-slate-400">📏 {stop.distanceSummary}</span>}
+                          </div>
+                          <button
+                            onClick={() => toggleComplete(stop.id)}
+                            className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition shrink-0 ${
+                              stop.completed
+                                ? "bg-emerald-500 border-emerald-500 text-white"
+                                : isAdmin
+                                  ? "border-slate-300 dark:border-slate-600 text-transparent hover:border-blue-500"
+                                  : "border-slate-200 dark:border-slate-700 text-transparent cursor-default"
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <h4 className={`text-sm sm:text-base font-extrabold text-slate-900 dark:text-white leading-snug mt-1 ${stop.completed ? "line-through text-slate-400" : ""}`}>
+                          {stop.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{stop.desc}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <button
+                        onClick={() => setDetailStop(stop)}
+                        className="px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 text-[11px] font-extrabold"
+                      >
+                        ℹ️ Mekan Rehberi
+                      </button>
+                      <div className="text-right">
+                        <span className="text-sm font-extrabold text-slate-900 dark:text-white">{fmtJpy(total4)}</span>
+                        <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 ml-1">{fmtTry(total4)}</span>
+                      </div>
+                    </div>
+
+                    {/* 4-Mode Transport Selector */}
+                    <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 grid grid-cols-4 gap-1.5">
+                      {[
+                        { key: "train", label: "Tren", Icon: Train },
+                        { key: "taxi", label: "Taksi", Icon: Car },
+                        { key: "bus", label: "Otobüs", Icon: Bus },
+                        { key: "walk", label: "Yürü", Icon: Footprints }
+                      ].map(({ key, label, Icon }) => {
+                        const active = modeKey === key;
+                        const isRec = recKey === key;
+                        const cost = stop.modes?.[key]?.cost4 ?? 0;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => changeTransport(stop.id, key)}
+                            className={`relative py-2 px-1 rounded-2xl text-[11px] font-extrabold border flex flex-col items-center transition ${
+                              active
+                                ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-xs"
+                                : isAdmin
+                                  ? "bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200/80 dark:border-slate-700"
+                                  : "bg-slate-50/50 dark:bg-slate-800/40 text-slate-400 border-slate-100 dark:border-slate-800 cursor-default"
+                            }`}
+                          >
+                            {isRec && <span className="absolute -top-1.5 right-1 px-1 rounded-full bg-amber-400 text-slate-950 text-[8px] font-black">⭐</span>}
+                            <div className="flex items-center gap-1"><Icon className="w-3 h-3" /> {label}</div>
+                            <span className={`text-[10px] mt-0.5 ${active ? "text-slate-200" : "text-slate-500"}`}>{cost === 0 ? "¥0" : fmtJpy(cost)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Route Note & Google Maps App Launcher */}
+                    <div className="bg-slate-100/80 dark:bg-slate-800/70 p-3 rounded-2xl space-y-2">
+                      <div className="text-[11px] text-slate-700 dark:text-slate-200 leading-relaxed">
+                        <span className="font-extrabold text-blue-700 dark:text-blue-400">Rota:</span> {activeMode.note}
+                      </div>
+                      <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-200/70 dark:border-slate-700">
+                        <button
+                          onClick={() => openGoogleMapsNative(stop)}
+                          className="flex-1 py-2 px-3 rounded-xl bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 font-extrabold text-xs text-center shadow-2xs flex items-center justify-center gap-1.5 active:scale-[0.99] transition"
+                        >
+                          <Navigation className="w-3.5 h-3.5" /> Google Maps'te Aç ({modeNames[modeKey]})
+                        </button>
+                        {isAdmin && (
+                          <>
+                            <button onClick={() => moveStopOrder(idx, -1)} disabled={idx === 0} className="p-2 rounded-xl bg-white dark:bg-slate-900 disabled:opacity-30"><ArrowUp className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => moveStopOrder(idx, 1)} disabled={idx === currentDayObj.stops.length - 1} className="p-2 rounded-xl bg-white dark:bg-slate-900 disabled:opacity-30"><ArrowDown className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setEditingStop(stop)} className="p-2 rounded-xl bg-white dark:bg-slate-900"><Edit3 className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => deleteStopItem(stop.id)} className="p-2 rounded-xl bg-white dark:bg-slate-900 text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </main>
+      )}
+
+      {/* FLOATING PILL NAVIGATION DOCK */}
+      <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <nav className="floating-dock pointer-events-auto rounded-full px-3 py-2 border border-white/80 dark:border-slate-700/80 flex items-center gap-1.5">
+          <button
+            onClick={() => { setMainView("timeline"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            className={`px-3.5 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5 transition ${
+              mainView === "timeline" ? "bg-slate-900 dark:bg-blue-600 text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            <Compass className="w-4 h-4" /> Plan
+          </button>
+          <button
+            onClick={() => setMainView("map")}
+            className={`px-3.5 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5 transition ${
+              mainView === "map" ? "bg-slate-900 dark:bg-blue-600 text-white" : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
+            <MapPin className="w-4 h-4" /> Harita
+          </button>
+          <button
+            onClick={() => setActiveModal("budget")}
+            className="px-3.5 py-2 rounded-full text-slate-600 dark:text-slate-300 text-xs font-extrabold flex items-center gap-1.5"
+          >
+            <Wallet className="w-4 h-4" /> Bütçe
+          </button>
+          <button
+            onClick={() => setActiveModal("tips")}
+            className="p-2 rounded-full text-slate-600 dark:text-slate-300"
+            title="İpuçları"
+          >
+            <Lightbulb className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setActiveModal("settings")}
+            className="p-2 rounded-full text-slate-600 dark:text-slate-300"
+            title="Ayarlar"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+        </nav>
+      </div>
+
+      {/* --- MODALS --- */}
+      <AnimatePresence>
+        {activeModal === "budget" && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-extrabold">11 Günlük Bütçe (4 Kişi)</h3>
+                  <p className="text-[11px] text-slate-500">1 ¥ = {rate.toFixed(3)} ₺ (Canlı Kur)</p>
+                </div>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4 overflow-y-auto space-y-4 text-xs">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60">
+                    <div className="text-[10px] font-bold text-indigo-600">Ulaşım (4 Kişi)</div>
+                    <div className="text-sm font-extrabold mt-0.5">{fmtJpy(grandTransport)}</div>
+                    <div className="text-[11px] font-bold text-indigo-700">{fmtTry(grandTransport)}</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/60">
+                    <div className="text-[10px] font-bold text-rose-600">Giriş & Yemek</div>
+                    <div className="text-sm font-extrabold mt-0.5">{fmtJpy(grandActivity)}</div>
+                    <div className="text-[11px] font-bold text-rose-700">{fmtTry(grandActivity)}</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-emerald-600 text-white">
+                    <div className="text-[10px] font-bold text-emerald-100">GENEL TOPLAM</div>
+                    <div className="text-sm font-extrabold mt-0.5">{fmtJpy(grandTotal)}</div>
+                    <div className="text-[11px] font-bold text-emerald-100">{fmtTry(grandTotal)}</div>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-900 flex items-center justify-between gap-2">
+                  <div>
+                    <div className="font-extrabold text-violet-900 dark:text-violet-300">📷 Kamera & Alışveriş Bütçesi (¥)</div>
+                    <div className="text-[11px] text-violet-700">Karşılığı: {fmtTry(appState.shoppingBudgetJpy || 0)}</div>
+                  </div>
+                  <input
+                    type="number"
+                    step="5000"
+                    value={appState.shoppingBudgetJpy || ""}
+                    onChange={(e) => persistState({ ...appState, shoppingBudgetJpy: Number(e.target.value) || 0 })}
+                    placeholder="150000"
+                    className="w-28 px-3 py-2 rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-800 font-extrabold text-right"
+                  />
+                </div>
+
+                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 font-bold">
+                      <tr><th className="p-2.5">Gün</th><th className="p-2.5">Ulaşım</th><th className="p-2.5">Aktivite</th><th className="p-2.5 text-right">Toplam</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {appState.days.map(d => {
+                        const tr = d.stops.reduce((a, s) => a + (Number(s.modes?.[s.selectedMode || s.recommendedMode || "train"]?.cost4) || 0), 0);
+                        const ac = d.stops.reduce((a, s) => a + (Number(s.cost4) || 0), 0);
+                        return (
+                          <tr key={d.dayNum}>
+                            <td className="p-2.5 font-extrabold">{d.dayNum}. Gün</td>
+                            <td className="p-2.5">{fmtJpy(tr)}</td>
+                            <td className="p-2.5">{fmtJpy(ac)}</td>
+                            <td className="p-2.5 text-right font-extrabold">{fmtJpy(tr + ac)} <span className="block text-[10px] text-emerald-600">{fmtTry(tr + ac)}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {detailStop && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="relative h-48 bg-slate-900 text-white flex flex-col justify-end p-5">
+                <img src={LANDMARK_PHOTOS[detailStop.visual] || LANDMARK_PHOTOS.castle} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
+                <button onClick={() => setDetailStop(null)} className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center"><X className="w-4 h-4" /></button>
+                <div className="relative z-10">
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold">Saat {detailStop.time}</span>
+                  <h3 className="text-lg font-extrabold mt-1">{detailStop.title}</h3>
+                </div>
+              </div>
+              <div className="p-5 overflow-y-auto space-y-3 text-xs leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300">{detailStop.longDesc || detailStop.desc}</p>
+                <div className="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50">
+                  <div className="font-extrabold text-indigo-900 dark:text-indigo-300 mb-1">✨ Mutlaka Yapılması Gerekenler</div>
+                  <p>{detailStop.highlights || "Bölge gezisi ve fotoğraf noktaları."}</p>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40">
+                  <div className="font-extrabold text-amber-900 dark:text-amber-300 mb-1">⚖️ Ulaşım Analizi</div>
+                  <p>{detailStop.transportReason || "Fiyat ve süre dengesine göre önerilmiştir."}</p>
+                </div>
+                <button onClick={() => openGoogleMapsNative(detailStop)} className="w-full py-3 rounded-2xl bg-blue-600 text-white font-extrabold text-center shadow flex items-center justify-center gap-1.5">
+                  <Navigation className="w-4 h-4" /> Google Maps'te Aç
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {activeModal === "notes" && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-base font-extrabold">📌 Ortak Grup Panosu</h3>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4 overflow-y-auto space-y-2.5 flex-1 text-xs">
+                {(appState.groupNotes || []).map(n => (
+                  <div key={n.id} className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-[10px] font-extrabold text-indigo-600">{n.author} • {n.time}</div>
+                      <div className="mt-0.5 font-medium">{n.text}</div>
+                    </div>
+                    {(isAdmin || currentUser.name === n.author) && (
+                      <button onClick={() => deleteNote(n.id)} className="text-rose-500 font-bold">✕</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="p-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-2">
+                <input
+                  type="text"
+                  value={newNoteText}
+                  onChange={e => setNewNoteText(e.target.value)}
+                  placeholder="Grup notu yaz..."
+                  className="flex-1 px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
+                />
+                <button onClick={addNote} className="px-4 py-2.5 rounded-2xl bg-blue-600 text-white font-extrabold text-xs">Gönder</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {activeModal === "cards" && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-base font-extrabold">🗣️ Japonca "Göster & Geç" Kartları</h3>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4 overflow-y-auto space-y-3 text-xs">
+                <div className="p-4 rounded-2xl bg-slate-900 text-white">
+                  <div className="text-[10px] font-bold text-rose-400">🚕 Taksi Şoförüne: Tokyo Evimiz</div>
+                  <div className="text-base font-extrabold mt-1">東京都足立区千住寿町 19-3</div>
+                  <div className="text-[11px] text-slate-300 mt-0.5">北千住駅の近くまでお願いします。</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-slate-900 text-white">
+                  <div className="text-[10px] font-bold text-amber-400">🚕 Taksi Şoförüne: Osaka Evimiz</div>
+                  <div className="text-base font-extrabold mt-1">大阪府大阪市西成区岸里 3-5-6</div>
+                  <div className="text-[11px] text-slate-300 mt-0.5">岸里駅の近くまでお願いします。</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900">
+                  <div className="text-[10px] font-extrabold text-indigo-600">📷 Bic Camera / Yodobashi Kasa</div>
+                  <div className="text-sm font-extrabold mt-1">免税（Tax-Free）と観光客クーポンを使いたいです。</div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">Vergi iadesi ve turist kuponunu kullanmak istiyorum.</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {activeModal === "tips" && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-base font-extrabold">💡 Japonya 2026 Altın İpuçları</h3>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4 overflow-y-auto space-y-3 text-xs leading-relaxed">
+                <div className="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40">
+                  <div className="font-extrabold text-violet-900 dark:text-violet-300 mb-1">📷 1. Bic Camera Yurakucho (27 Kas 10:00)</div>
+                  Pasaportunuzun fiziksel aslını göstererek %10 Tax-Free + Google turist kuponu ile ekstra %5–7 indirim alabilirsiniz.
+                </div>
+                <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40">
+                  <div className="font-extrabold text-amber-900 dark:text-amber-300 mb-1">🚕 2. 4 Kişi Taksi & Otomatik Kapı</div>
+                  Tokyo'da açılış ¥500, Osaka'da ¥600'dür. Arka kapı otomatik açılır/kapanır, kapıya el sürmeyin.
+                </div>
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40">
+                  <div className="font-extrabold text-rose-900 dark:text-rose-300 mb-1">🏎️ 3. Tokyo Drift & Oi Bit Pazarı</div>
+                  Cuma gecesi Shibuya Center-Gai neon drift caddesi, Cumartesi sabahı ise Oi Racecourse Bit Pazarı için yanınızda nakit Yen bulundurun.
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {activeModal === "profile" && !isAdmin && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-[32px] max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold">Profil Kartım</h3>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="w-24 h-24 rounded-full mx-auto overflow-hidden bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-3xl font-extrabold">
+                {currentUser.avatar_url ? <img src={currentUser.avatar_url} className="w-full h-full object-cover" /> : currentUser.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div className="text-lg font-extrabold">{currentUser.name}</div>
+                <div className="text-[11px] text-emerald-600 font-bold mt-0.5">🔒 Bu cihaza kalıcı olarak kilitli</div>
+              </div>
+              <label className="block w-full py-3 rounded-2xl bg-slate-900 dark:bg-blue-600 text-white text-xs font-extrabold cursor-pointer">
+                📸 Profil Fotoğrafını Değiştir
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarChange(e, true)} />
+              </label>
+            </motion.div>
+          </div>
+        )}
+
+        {activeModal === "settings" && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-md w-full p-5 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 className="text-base font-extrabold">Sistem & Cihaz Yönetimi</h3>
+                <button onClick={() => setActiveModal(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="text-xs space-y-3">
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+                  <div>
+                    <div className="text-slate-400 font-bold">Aktif Oturum</div>
+                    <div className="font-extrabold mt-0.5">{isAdmin ? "👑 Admin Modu" : `👤 ${currentUser.name}`}</div>
+                  </div>
+                  {!isAdmin && (
+                    <button onClick={() => setActiveModal("profile")} className="px-3 py-1.5 rounded-xl bg-indigo-100 text-indigo-700 font-extrabold">Profilim</button>
+                  )}
+                </div>
+
+                {isAdmin && (
+                  <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div>
+                      <div className="font-extrabold mb-1.5">Cihaz Kilitli Yolcular</div>
+                      <div className="space-y-1.5">
+                        {registeredUsers.map((u, i) => (
+                          <div key={u.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl">
+                            <span className="font-bold">{i + 1}. {u.name}</span>
+                            <button onClick={() => removeRegisteredDevice(u.id)} className="text-rose-600 font-extrabold">Kilidi Sil</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <input type="text" value={newPinValue} onChange={e => setNewPinValue(e.target.value)} placeholder="Yeni Admin PIN" className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800" />
+                      <button
+                        onClick={() => {
+                          if (newPinValue.trim().length >= 4) {
+                            persistState({ ...appState, adminPin: newPinValue.trim() });
+                            setNewPinValue("");
+                            alert("Admin PIN güncellendi!");
+                          }
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 text-white font-bold"
+                      >
+                        PIN Güncelle
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (window.confirm("Plan varsayılan verilere sıfırlansın mı?")) {
+                          persistState({ ...DEFAULT_DATA, adminPin: appState.adminPin, exchangeRate: appState.exchangeRate });
+                          setActiveModal(null);
+                        }
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-rose-50 text-rose-700 font-extrabold"
+                    >
+                      Varsayılan Plana Sıfırla
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    if (isAdmin) {
+                      localStorage.removeItem("japan_admin_unlocked");
+                      window.location.reload();
+                    } else {
+                      setActiveModal(null);
+                      setAuthTab("admin");
+                      setCurrentUser(null);
+                    }
+                  }}
+                  className="w-full py-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white font-extrabold"
+                >
+                  {isAdmin ? "🚪 Admin Modundan Çık" : "👑 Admin Moduna Geç"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {editingStop && (
+          <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-base font-extrabold">{editingStop.id ? "Durağı Düzenle" : "Yeni Durak Ekle"}</h3>
+                <button onClick={() => setEditingStop(null)} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4 overflow-y-auto space-y-3 text-xs">
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="text" value={editingStop.time} onChange={e => setEditingStop({ ...editingStop, time: e.target.value })} placeholder="Saat (09:30)" className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-bold" />
+                  <input type="text" value={editingStop.coords || ""} onChange={e => setEditingStop({ ...editingStop, coords: e.target.value })} placeholder="GPS (35.75,139.79)" className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-mono" />
+                </div>
+                <input type="text" value={editingStop.title} onChange={e => setEditingStop({ ...editingStop, title: e.target.value })} placeholder="Mekan Adı" className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-bold" />
+                <textarea rows="2" value={editingStop.desc} onChange={e => setEditingStop({ ...editingStop, desc: e.target.value })} placeholder="Açıklama" className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800" />
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="number" value={editingStop.cost4} onChange={e => setEditingStop({ ...editingStop, cost4: e.target.value })} placeholder="Giriş/Yemek 4 Kişi ¥" className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800" />
+                  <select value={editingStop.recommendedMode || "train"} onChange={e => setEditingStop({ ...editingStop, recommendedMode: e.target.value })} className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800 font-bold">
+                    <option value="train">🚆 Önerilen: Tren</option>
+                    <option value="taxi">🚕 Önerilen: Taksi</option>
+                    <option value="bus">🚌 Önerilen: Otobüs</option>
+                    <option value="walk">🚶 Önerilen: Yürüyüş</option>
+                  </select>
+                </div>
+              </div>
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+                <button onClick={() => setEditingStop(null)} className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs">İptal</button>
+                <button onClick={saveStopModal} className="px-5 py-2 rounded-xl bg-blue-600 text-white font-extrabold text-xs">Kaydet</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
