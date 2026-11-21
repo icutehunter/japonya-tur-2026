@@ -28,6 +28,8 @@ os.makedirs(AVATAR_DIR, exist_ok=True)
 DB_PATH = os.path.join(DB_DIR, "japan_trip.db")
 
 app.mount("/avatars", StaticFiles(directory=AVATAR_DIR), name="avatars")
+if os.path.exists("dist/assets"):
+    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
 
 
 def get_conn():
@@ -100,7 +102,6 @@ def save_avatar_base64(base64_str: str, token_prefix: str) -> str:
         _, encoded = base64_str.split(",", 1)
         raw_bytes = base64.b64decode(encoded)
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
-        # Center crop to square
         w, h = img.size
         side = min(w, h)
         left = (w - side) // 2
@@ -118,6 +119,8 @@ def save_avatar_base64(base64_str: str, token_prefix: str) -> str:
 
 @app.get("/")
 def serve_index():
+    if os.path.exists("dist/index.html"):
+        return FileResponse("dist/index.html")
     return FileResponse("index.html")
 
 
@@ -202,7 +205,6 @@ async def register_or_login(request: Request):
     name_lower = raw_name.lower()
     conn = get_conn()
 
-    # 1. Check if this device_token is already bound to a user
     if device_token:
         by_device = conn.execute(
             "SELECT id, name, avatar_url, device_token FROM users WHERE device_token = ?",
@@ -216,7 +218,6 @@ async def register_or_login(request: Request):
                 "users": get_users_public(),
             }
 
-    # 2. Check if the name is already taken by another device
     by_name = conn.execute(
         "SELECT id, name, device_token FROM users WHERE name_lower = ?",
         (name_lower,),
@@ -231,7 +232,6 @@ async def register_or_login(request: Request):
             },
         )
 
-    # 3. Check 4-user capacity limit
     count = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()["c"]
     if count >= 4:
         conn.close()
@@ -242,7 +242,6 @@ async def register_or_login(request: Request):
             },
         )
 
-    # 4. Create new device-bound user with avatar
     new_token = device_token or secrets.token_hex(24)
     avatar_url = save_avatar_base64(avatar_b64, new_token[:8])
 
