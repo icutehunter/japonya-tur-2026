@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -11,30 +11,71 @@ import {
 const TOKYO_COORDS = "35.7534716,139.7996485";
 const OSAKA_COORDS = "34.6303610,135.4933890";
 
-const LANDMARK_PHOTOS = {
-  flight: "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=800&q=80",
-  home: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80",
-  food: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
-  shinkansen: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=800&q=80",
-  osaka_night: "https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80",
-  usj: "https://images.unsplash.com/photo-1624601573012-efb68931cc8f?auto=format&fit=crop&w=800&q=80",
-  nara: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=800&q=80",
-  castle: "https://images.unsplash.com/photo-1590253230532-a67f6bc61c9e?auto=format&fit=crop&w=800&q=80",
-  disney: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=800&q=80",
-  harry: "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?auto=format&fit=crop&w=800&q=80",
-  shopping: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
-  wagyu: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
-  shibuya: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=800&q=80",
-  drift: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
-  flea: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=800&q=80"
+// Her durağa özel benzersiz, tekrar etmeyen mekan fotoğrafları
+const STOP_PHOTOS = {
+  d1_1: "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=800&q=80",
+  d1_2: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80",
+  d1_3: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+  d2_1: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80",
+  d2_2: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+  d2_3: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=800&q=80",
+  d2_4: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+  d2_5: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
+  d2_6: "https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80",
+  d2_7: "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?auto=format&fit=crop&w=800&q=80",
+  d3_1: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80",
+  d3_2: "https://images.unsplash.com/photo-1624601573012-efb68931cc8f?auto=format&fit=crop&w=800&q=80",
+  d3_3: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+  d3_4: "https://images.unsplash.com/photo-1554797589-7241bb691973?auto=format&fit=crop&w=800&q=80",
+  d3_5: "https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80",
+  d4_1: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+  d4_2: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=800&q=80",
+  d4_3: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80",
+  d4_4: "https://images.unsplash.com/photo-1590253230532-a67f6bc61c9e?auto=format&fit=crop&w=800&q=80",
+  d4_5: "https://images.unsplash.com/photo-1578469645742-46cae010e5d4?auto=format&fit=crop&w=800&q=80",
+  d4_6: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+  d5_1: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=80",
+  d5_2: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=800&q=80",
+  d5_3: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?auto=format&fit=crop&w=800&q=80",
+  d5_4: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80",
+  d5_5: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80",
+  d6_1: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+  d6_2: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=800&q=80",
+  d6_3: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+  d6_4: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80",
+  d7_1: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80",
+  d7_2: "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?auto=format&fit=crop&w=800&q=80",
+  d7_3: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80",
+  d7_4: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=800&q=80",
+  d7_5: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+  d8_1: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+  d8_2: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=800&q=80",
+  d8_3: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+  d8_4: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80",
+  d8_5: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80",
+  d9_1: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=800&q=80",
+  d9_2: "https://images.unsplash.com/photo-1583084647979-b53f84261f33?auto=format&fit=crop&w=800&q=80",
+  d9_3: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
+  d9_4: "https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?auto=format&fit=crop&w=800&q=80",
+  d9_5: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+  d10_1: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=800&q=80",
+  d10_2: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=800&q=80",
+  d10_3: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80",
+  d10_4: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80",
+  d10_5: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+  d11_1: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80",
+  d11_2: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
+  d11_3: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80"
 };
 
 const VISUAL_KANJI = {
   flight: "空港", home: "宿泊先", food: "グルメ", shinkansen: "新幹線",
-  osaka_night: "道頓堀", usj: "USJ大阪", nara: "奈良公園", castle: "歴史・城",
-  disney: "ディズニー", harry: "ハリポタ", shopping: "カメラ・買物", wagyu: "A5和牛",
-  shibuya: "渋谷スカイ", drift: "東京ドリフト", flea: "蚤の市"
+  osaka_night: "道頓堀", teamlab: "チームラボ", usj: "USJ大阪", nara: "奈良公園",
+  castle: "歴史・城", disney: "ディズニー", harry: "ハリポタ", shopping: "カメラ・買物",
+  wagyu: "A5和牛", shibuya: "渋谷スカイ", drift: "東京ドリフト", flea: "蚤の市"
 };
+
+const getPhotoForStop = (st) => STOP_PHOTOS[st.id] || STOP_PHOTOS.d4_4;
 
 const DEFAULT_DATA = {
   exchangeRate: 0.316,
@@ -95,8 +136,8 @@ const DEFAULT_DATA = {
     },
     {
       dayNum: 2, date: "27 Kasım 2026, Cuma", city: "OSAKA",
-      fatigue: "Orta Tempo • Kamera & Shinkansen",
-      title: "Bic Camera Yurakucho & Shinkansen ile Osaka",
+      fatigue: "Orta Tempo • Kamera & teamLab",
+      title: "Bic Camera Yurakucho, Shinkansen & teamLab Botanical",
       stops: [
         {
           id: "d2_1", time: "08:45", visual: "food", completed: false,
@@ -144,7 +185,7 @@ const DEFAULT_DATA = {
           id: "d2_4", time: "14:15", visual: "home", completed: false,
           title: "Osaka Evi Check-in (Kishinosato)",
           desc: "Kishinosato 3-5-6 (34.6303610, 135.4933890). Sırt çantalarını bırakma.",
-          longDesc: "Yotsubashi metro hattıyla Namba ve Dotonbori'ye 4 durak mesafedeki eviniz.",
+          longDesc: "Yotsubashi metro hattına ve Nagai Park'a çok yakın konumdaki Osaka eviniz.",
           cost4: 0, distanceSummary: "12.4 km • 32 dk metro", coords: OSAKA_COORDS,
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -155,31 +196,31 @@ const DEFAULT_DATA = {
           }
         },
         {
-          id: "d2_5", time: "16:00", visual: "osaka_night", completed: false,
-          title: "Miracle World Osaka",
-          desc: "Namba merkezindeki dijital sanat, ayna ve ışık illüzyon deneyimi.",
-          longDesc: "Sonsuz ayna odaları ve dijital projeksiyon alanlarıyla yeni kameranız için harika çekim noktası.",
-          cost4: 8800, distanceSummary: "4.1 km • 8 dk metro", coords: "34.6672,135.5028",
-          recommendedMode: "train", selectedMode: "train",
+          id: "d2_5", time: "17:15", visual: "teamlab", completed: false,
+          title: "teamLab Botanical Garden Osaka (Nagai Park)",
+          desc: "Gün batımı sonrası açık hava botanik bahçesinde interaktif dev ışık enstalasyonları (4 Kişi).",
+          longDesc: "Nagai Botanik Bahçesi'nin gece karanlığında sanat alanına dönüştüğü açık hava sergisi. Evinize sadece 3.2 km mesafededir.",
+          cost4: 8000, distanceSummary: "3.2 km • 9 dk taksi", coords: "34.6192,135.5233",
+          recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
-            train: { cost4: 960, note: "4.1 km • 8 dk | Kishinosato → Namba Yotsubashi Line" },
-            taxi: { cost4: 1900, note: "4.1 km • 11 dk | 4 kişi taksi" },
-            bus: { cost4: 840, note: "4.3 km • 20 dk | Otobüs" },
-            walk: { cost4: 0, note: "4.1 km • 52 dk" }
+            train: { cost4: 960, note: "3.2 km • 15 dk | Kishinosato → Nagai Metro (1 aktarma)" },
+            taxi: { cost4: 1600, note: "3.2 km • 9 dk | Ev kapısından Nagai Park girişine direkt (Kişi ¥400)" },
+            bus: { cost4: 840, note: "3.5 km • 18 dk | Belediye otobüsü" },
+            walk: { cost4: 0, note: "3.2 km • 40 dk yürüyüş" }
           }
         },
         {
-          id: "d2_6", time: "18:30", visual: "osaka_night", completed: false,
+          id: "d2_6", time: "19:30", visual: "osaka_night", completed: false,
           title: "Dotonbori Akşam Turu & Sokak Lezzetleri",
           desc: "Glico tabelası, kanal gece çekimleri, Okonomiyaki ve Takoyaki ziyafeti.",
-          longDesc: "Ebisubashi köprüsünde Glico gece fotoğrafı ve Dotonbori sokak lezzetleri.",
-          cost4: 12000, distanceSummary: "350 m • 4 dk yürüyüş", coords: "34.6687,135.5013",
-          recommendedMode: "walk", selectedMode: "walk",
+          longDesc: "Nagai istasyonundan Midosuji metro hattı aktarmasız 12 dakikada doğrudan Namba/Dotonbori'ye iner.",
+          cost4: 12000, distanceSummary: "6.8 km • 12 dk metro", coords: "34.6687,135.5013",
+          recommendedMode: "train", selectedMode: "train",
           modes: {
-            train: { cost4: 0, note: "Yürüme mesafesi" },
-            taxi: { cost4: 600, note: "350 m • 2 dk" },
-            bus: { cost4: 0, note: "Yürüme mesafesi" },
-            walk: { cost4: 0, note: "350 m • 4 dk yürüyüş" }
+            train: { cost4: 1120, note: "6.8 km • 12 dk | Nagai → Namba Midosuji Line direkt" },
+            taxi: { cost4: 3100, note: "6.8 km • 16 dk | 4 kişi taksi" },
+            bus: { cost4: 840, note: "7.2 km • 28 dk | Otobüs" },
+            walk: { cost4: 0, note: "6.8 km • 1 sa 25 dk" }
           }
         },
         {
@@ -675,17 +716,22 @@ function compressImage(file) {
 function InteractiveRouteMap({ dayObj, onSelectStop }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const tileLayerRef = useRef(null);
   const layerGroupRef = useRef(null);
+  const [mapStyle, setMapStyle] = useState("street"); // 'street' | 'satellite' | 'dark'
   const [activePinStop, setActivePinStop] = useState(null);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = L.map(mapContainerRef.current, { zoomControl: false }).setView([35.6895, 139.6917], 12);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        attribution: "&copy; OpenStreetMap"
+      tileLayerRef.current = L.tileLayer(`/api/tiles/${mapStyle}/{z}/{x}/{y}.png`, {
+        attribution: "&copy; Esri & OpenStreetMap",
+        maxZoom: 18
       }).addTo(mapInstanceRef.current);
       layerGroupRef.current = L.layerGroup().addTo(mapInstanceRef.current);
+    } else if (tileLayerRef.current) {
+      tileLayerRef.current.setUrl(`/api/tiles/${mapStyle}/{z}/{x}/{y}.png`);
     }
 
     const map = mapInstanceRef.current;
@@ -694,11 +740,11 @@ function InteractiveRouteMap({ dayObj, onSelectStop }) {
     group.clearLayers();
 
     const tokyoIcon = L.divIcon({
-      html: `<div style="background:#059669;color:#fff;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:800;border:2px solid #fff;white-space:nowrap;">🏠 Tokyo Evi</div>`,
+      html: `<div style="background:#059669;color:#fff;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:800;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25);white-space:nowrap;">🏠 Tokyo Evi</div>`,
       className: ""
     });
     const osakaIcon = L.divIcon({
-      html: `<div style="background:#0d9488;color:#fff;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:800;border:2px solid #fff;white-space:nowrap;">🏠 Osaka Evi</div>`,
+      html: `<div style="background:#0d9488;color:#fff;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:800;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25);white-space:nowrap;">🏠 Osaka Evi</div>`,
       className: ""
     });
     L.marker([35.7534716, 139.7996485], { icon: tokyoIcon }).addTo(group);
@@ -721,13 +767,13 @@ function InteractiveRouteMap({ dayObj, onSelectStop }) {
     });
 
     if (points.length > 1) {
-      L.polyline(points, { color: "#2563eb", weight: 3.5, opacity: 0.8, dashArray: "6, 8" }).addTo(group);
+      L.polyline(points, { color: mapStyle === "satellite" ? "#38bdf8" : "#2563eb", weight: 3.5, opacity: 0.85, dashArray: "6, 8" }).addTo(group);
     }
     if (points.length > 0) {
       map.fitBounds(L.latLngBounds(points), { padding: [45, 45], maxZoom: 14 });
       setActivePinStop(validStops[0]);
     }
-  }, [dayObj]);
+  }, [dayObj, mapStyle]);
 
   const focusHome = (which) => {
     if (!mapInstanceRef.current) return;
@@ -737,8 +783,12 @@ function InteractiveRouteMap({ dayObj, onSelectStop }) {
 
   return (
     <div className="glass-card rounded-[28px] overflow-hidden border border-white/80 dark:border-slate-800 shadow-lg">
-      <div className="p-3 bg-white/90 dark:bg-slate-900/90 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-        <span className="text-xs font-extrabold">{dayObj.dayNum}. Gün • {dayObj.city} Rotası</span>
+      <div className="p-3 bg-white/90 dark:bg-slate-900/90 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-full text-[10px] font-extrabold">
+          <button onClick={() => setMapStyle("street")} className={`px-2.5 py-1 rounded-full transition ${mapStyle === "street" ? "bg-white dark:bg-slate-700 text-blue-600 shadow-2xs" : "text-slate-500"}`}>Sokak</button>
+          <button onClick={() => setMapStyle("satellite")} className={`px-2.5 py-1 rounded-full transition ${mapStyle === "satellite" ? "bg-white dark:bg-slate-700 text-blue-600 shadow-2xs" : "text-slate-500"}`}>Uydu</button>
+          <button onClick={() => setMapStyle("dark")} className={`px-2.5 py-1 rounded-full transition ${mapStyle === "dark" ? "bg-white dark:bg-slate-700 text-blue-600 shadow-2xs" : "text-slate-500"}`}>Koyu</button>
+        </div>
         <div className="flex gap-1.5 text-[10px] font-extrabold">
           <button onClick={() => focusHome("tokyo")} className="px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300">🏠 Tokyo</button>
           <button onClick={() => focusHome("osaka")} className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">🏠 Osaka</button>
@@ -750,7 +800,7 @@ function InteractiveRouteMap({ dayObj, onSelectStop }) {
       {activePinStop && (
         <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 space-y-3">
           <div className="flex items-center gap-3">
-            <img src={LANDMARK_PHOTOS[activePinStop.stop.visual] || LANDMARK_PHOTOS.castle} alt="" className="w-14 h-14 rounded-2xl object-cover shrink-0" />
+            <img src={getPhotoForStop(activePinStop.stop)} alt="" className="w-14 h-14 rounded-2xl object-cover shrink-0" />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-extrabold inline-flex items-center justify-center">{activePinStop.num}</span>
@@ -930,7 +980,7 @@ export default function App() {
   if (!currentUser) {
     return (
       <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white dark:bg-slate-900 rounded-[32px] max-w-md w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div className="bg-white dark:bg-slate-900 rounded-[32px] max-w-md w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
           <div className="text-center mb-4">
             <span className="inline-block px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-extrabold uppercase mb-1.5">26 Kas – 06 Ara 2026</span>
             <h1 className="text-2xl font-extrabold">Japonya Rotamız 🇯🇵</h1>
@@ -980,7 +1030,7 @@ export default function App() {
               <button onClick={handleAdminSubmit} className="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-extrabold text-sm shadow-lg">Yönetici Olarak Gir ↗</button>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -1109,17 +1159,28 @@ export default function App() {
         </section>
       ) : (
         <main className="max-w-2xl mx-auto px-4 pt-2 space-y-4">
+          {/* YATAY SİNEMATİK FOTOĞRAF VİTRİNİ (Tamamlanan duraklar soluk & gri tonlu) */}
           <div className="overflow-x-auto no-scrollbar flex gap-2.5 pb-1">
             {currentDayObj.stops.map((st, idx) => (
               <div key={st.id} onClick={() => focusStopCard(st.id)}
-                className={`relative w-36 h-44 rounded-[24px] overflow-hidden shrink-0 cursor-pointer shadow-md border-2 transition ${focusedStopId === st.id ? "border-blue-500 scale-[1.02]" : "border-white/60 dark:border-slate-800"}`}>
-                <img src={LANDMARK_PHOTOS[st.visual] || LANDMARK_PHOTOS.castle} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                className={`relative w-36 h-44 rounded-[24px] overflow-hidden shrink-0 cursor-pointer shadow-md border-2 transition-all duration-300 bg-slate-900 ${
+                  st.completed
+                    ? "border-emerald-400/60 opacity-50 grayscale"
+                    : focusedStopId === st.id
+                      ? "border-blue-500 scale-[1.02]"
+                      : "border-white/60 dark:border-slate-800"
+                }`}>
+                <img src={getPhotoForStop(st)} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent" />
-                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/45 text-white text-[10px] font-extrabold">{idx + 1} • {st.time}</div>
-                {st.completed && <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center"><Check className="w-3 h-3" /></div>}
+                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/55 text-white text-[10px] font-extrabold">{idx + 1} • {st.time}</div>
+                {st.completed && (
+                  <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[9px] font-extrabold flex items-center gap-0.5 shadow">
+                    <Check className="w-2.5 h-2.5" /> Tamam
+                  </div>
+                )}
                 <div className="absolute bottom-2.5 inset-x-2.5 text-white">
                   <div className="text-[10px] text-white/75 font-bold">{VISUAL_KANJI[st.visual] || "日本"}</div>
-                  <div className="text-xs font-extrabold leading-tight line-clamp-2 mt-0.5">{st.title}</div>
+                  <div className={`text-xs font-extrabold leading-tight line-clamp-2 mt-0.5 ${st.completed ? "line-through text-slate-300" : ""}`}>{st.title}</div>
                 </div>
               </div>
             ))}
@@ -1151,10 +1212,10 @@ export default function App() {
               const modeNames = { train: "Tren / Metro", taxi: "Taksi (4 Kişi)", bus: "Otobüs", walk: "Yürüyüş" };
 
               return (
-                <div id={`stop-card-${stop.id}`} key={stop.id} className={`glass-card rounded-[26px] border overflow-hidden transition ${focusedStopId === stop.id ? "ring-2 ring-blue-500 border-blue-400" : stop.completed ? "border-emerald-300 dark:border-emerald-800 opacity-75" : "border-white/90 dark:border-slate-800"}`}>
+                <div id={`stop-card-${stop.id}`} key={stop.id} className={`glass-card rounded-[26px] border overflow-hidden transition ${focusedStopId === stop.id ? "ring-2 ring-blue-500 border-blue-400" : stop.completed ? "border-emerald-300 dark:border-emerald-800 opacity-65" : "border-white/90 dark:border-slate-800"}`}>
                   <div className="p-4 space-y-3">
                     <div className="flex items-start gap-3">
-                      <img src={LANDMARK_PHOTOS[stop.visual] || LANDMARK_PHOTOS.castle} alt="" onClick={() => setDetailStop(stop)} className="w-16 h-16 rounded-2xl object-cover shrink-0 cursor-pointer" />
+                      <img src={getPhotoForStop(stop)} alt="" onClick={() => setDetailStop(stop)} className={`w-16 h-16 rounded-2xl object-cover shrink-0 cursor-pointer transition ${stop.completed ? "grayscale opacity-60" : ""}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5">
@@ -1278,7 +1339,7 @@ export default function App() {
           <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center sm:p-4">
             <div className="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
               <div className="relative h-48 bg-slate-900 text-white flex flex-col justify-end p-5">
-                <img src={LANDMARK_PHOTOS[detailStop.visual] || LANDMARK_PHOTOS.castle} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                <img src={getPhotoForStop(detailStop)} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
                 <button onClick={() => setDetailStop(null)} className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center"><X className="w-4 h-4" /></button>
                 <div className="relative z-10"><span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold">Saat {detailStop.time}</span><h3 className="text-lg font-extrabold mt-1">{detailStop.title}</h3></div>
@@ -1340,7 +1401,7 @@ export default function App() {
               <div className="p-4 overflow-y-auto space-y-3 text-xs leading-relaxed">
                 <div className="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40"><div className="font-extrabold mb-1">📷 1. Bic Camera Yurakucho (27 Kas 10:00)</div>Pasaportunuzun fiziksel aslını göstererek %10 Tax-Free + Google turist kuponu ile ekstra %5–7 indirim alabilirsiniz.</div>
                 <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40"><div className="font-extrabold mb-1">🚕 2. 4 Kişi Taksi & Otomatik Kapı</div>Tokyo'da açılış ¥500, Osaka'da ¥600'dür. Arka kapı otomatik açılır/kapanır, kapıya el sürmeyin.</div>
-                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40"><div className="font-extrabold mb-1">🏎️ 3. Tokyo Drift & Oi Bit Pazarı</div>Cuma gecesi Shibuya Center-Gai neon drift caddesi, Cumartesi sabahı Oi Racecourse Bit Pazarı için nakit Yen bulundurun.</div>
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40"><div className="font-extrabold mb-1">🌿 3. teamLab Botanical Garden Osaka</div>Gün batımından sonra açık havada başlar; Nagai Park girişinde saat dilimli biletinizi göstererek girebilirsiniz.</div>
               </div>
             </div>
           </div>
@@ -1383,7 +1444,7 @@ export default function App() {
                       <input type="text" value={newPinValue} onChange={e => setNewPinValue(e.target.value)} placeholder="Yeni Admin PIN" className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-800" />
                       <button onClick={() => { if (newPinValue.trim().length >= 4) { persistState({ ...appState, adminPin: newPinValue.trim() }); setNewPinValue(""); alert("PIN güncellendi!"); } }} className="px-3.5 py-2 rounded-xl bg-slate-800 text-white font-bold">PIN Güncelle</button>
                     </div>
-                    <button onClick={() => { if (window.confirm("Plan varsayılan verilere sıfırlansın mı?")) { persistState({ ...DEFAULT_DATA, adminPin: appState.adminPin, exchangeRate: appState.exchangeRate }); setActiveModal(null); } }} className="w-full py-2.5 rounded-xl bg-rose-50 text-rose-700 font-extrabold">Varsayılan Plana Sıfırla</button>
+                    <button onClick={() => { if (window.confirm("Plan teamLab Botanical dahil güncel varsayılan verilere sıfırlansın mı?")) { persistState({ ...DEFAULT_DATA, adminPin: appState.adminPin, exchangeRate: appState.exchangeRate }); setActiveModal(null); } }} className="w-full py-2.5 rounded-xl bg-rose-50 text-rose-700 font-extrabold">Güncel Varsayılan Plana Sıfırla</button>
                   </div>
                 )}
                 <button onClick={() => { if (isAdmin) { localStorage.removeItem("japan_admin_unlocked"); window.location.reload(); } else { setActiveModal(null); setAuthTab("admin"); setCurrentUser(null); } }} className="w-full py-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white font-extrabold">
