@@ -16,77 +16,95 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .cloud-bg {
-      background: linear-gradient(180deg, #dceaf7 0%, #eef4fa 26%, #f6f8fb 65%, #f6f8fb 100%);
+      background: linear-gradient(180deg, #dbe9f6 0%, #eef4fa 26%, #f6f8fb 65%, #f6f8fb 100%);
     }
     .dark .cloud-bg {
-      background: linear-gradient(180deg, #0f172a 0%, #0b1120 40%, #070b14 100%);
+      background: linear-gradient(180deg, #0d1322 0%, #090e1a 45%, #060911 100%);
     }
     .glass-card {
-      background: rgba(255, 255, 255, 0.86);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
     .dark .glass-card {
-      background: rgba(22, 30, 46, 0.84);
+      background: rgba(21, 29, 44, 0.86);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
     .floating-dock {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 12px 35px -6px rgba(15, 23, 42, 0.16);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 14px 36px -6px rgba(15, 23, 42, 0.18);
     }
     .dark .floating-dock {
-      background: rgba(24, 33, 52, 0.9);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 12px 35px -6px rgba(0, 0, 0, 0.55);
+      background: rgba(23, 32, 50, 0.92);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 14px 36px -6px rgba(0, 0, 0, 0.6);
     }
     #routeMap { z-index: 10; }
   </style>
 </head>
 <body class="cloud-bg min-h-screen text-slate-800 dark:text-slate-100 pb-32 transition-colors duration-300">
 
-  <!-- AUTH GATE MODAL -->
+  <!-- DEVICE-LOCKED AUTH & AVATAR UPLOAD MODAL -->
   <div id="authModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-[32px] max-w-md w-full p-6 shadow-2xl border border-white/60 dark:border-slate-800">
-      <div class="text-center mb-5">
-        <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-rose-500 to-indigo-600 text-white text-3xl flex items-center justify-center mx-auto mb-3 shadow-lg">🇯🇵</div>
+    <div class="bg-white dark:bg-slate-900 rounded-[32px] max-w-md w-full p-6 shadow-2xl border border-white/60 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
+      <div class="text-center mb-4">
         <span class="inline-block px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-extrabold tracking-wide uppercase mb-1.5">26 Kas – 06 Ara 2026</span>
-        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">Japonya'yı Keşfet!</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tokyo & Osaka • 4 Kişilik Özel Grup Planı</p>
+        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">Japonya'yı Keşfet! 🇯🇵</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tokyo & Osaka • Cihaz Kilitli Grup Rehberi</p>
       </div>
 
-      <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3.5 mb-5 border border-slate-200/70 dark:border-slate-700">
+      <!-- Registered Group Avatars Preview -->
+      <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3.5 mb-4 border border-slate-200/70 dark:border-slate-700">
         <div class="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
-          <span>Grup Üyeleri (Maks. 4 Kişi)</span>
+          <span>Kayıtlı Grup Üyeleri</span>
           <span id="userCountBadge" class="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-extrabold">0 / 4</span>
         </div>
-        <div id="registeredUsersList" class="flex flex-wrap gap-1.5 text-xs text-slate-500 dark:text-slate-400"></div>
+        <div id="registeredUsersList" class="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400"></div>
       </div>
 
-      <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-5">
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-4">
         <button onclick="switchAuthTab('guest')" id="tabGuest" class="py-2.5 rounded-xl text-xs font-extrabold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs transition">👤 Yolcu Girişi</button>
         <button onclick="switchAuthTab('admin')" id="tabAdmin" class="py-2.5 rounded-xl text-xs font-extrabold text-slate-500 dark:text-slate-400 transition">👑 Admin Girişi</button>
       </div>
 
-      <div id="guestLoginForm">
-        <label class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1.5">Adınız Soyadınız</label>
-        <input type="text" id="guestNameInput" placeholder="Örn: Aykut Avcı" class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-semibold mb-3" />
-        <p id="authError" class="text-xs text-rose-500 font-bold mb-3 hidden"></p>
-        <button onclick="handleGuestLogin()" class="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-rose-600 hover:opacity-95 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg transition">
-          Planı Görüntüle ↗
+      <div id="guestLoginForm" class="space-y-3">
+        <!-- Profile Photo Picker -->
+        <div class="flex flex-col items-center">
+          <label for="avatarFileInput" class="cursor-pointer group relative">
+            <div id="avatarPreviewBox" class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-sky-400 flex flex-col items-center justify-center overflow-hidden shadow-inner">
+              <span class="text-2xl">📸</span>
+              <span class="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">Fotoğraf Seç</span>
+            </div>
+            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-rose-600 text-white text-xs font-extrabold flex items-center justify-center shadow">+</span>
+          </label>
+          <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarSelected(event)" />
+          <span class="text-[10px] text-slate-400 mt-1">Profil fotoğrafınız üst bar ve haritada görünür</span>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1">Adınız Soyadınız</label>
+          <input type="text" id="guestNameInput" placeholder="Örn: Aykut Avcı" class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-semibold" />
+        </div>
+
+        <p id="authError" class="text-xs text-rose-500 font-bold hidden"></p>
+        <button onclick="handleGuestLogin()" id="guestSubmitBtn" class="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-rose-600 hover:opacity-95 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg transition">
+          Cihazımı Kaydet & Giriş Yap ↗
         </button>
-        <p class="text-[11px] text-slate-400 text-center mt-3 leading-relaxed">
-          4 farklı yolcu giriş yaptıktan sonra sistem yeni isimlere otomatik kilitlenir.
+        <p class="text-[10px] text-slate-400 text-center leading-relaxed">
+          Bu cihaz isminize kilitlenir. Sayfayı kapatsanız bile tekrar otomatik giriş yaparsınız; başka cihazdan aynı isimle girilemez.
         </p>
       </div>
 
-      <div id="adminLoginForm" class="hidden">
-        <label class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1.5">Admin PIN Kodu</label>
-        <input type="password" inputmode="numeric" id="adminPinInput" placeholder="PIN (Varsayılan: 2026)" class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm font-semibold mb-3" />
-        <p id="adminError" class="text-xs text-rose-500 font-bold mb-3 hidden"></p>
+      <div id="adminLoginForm" class="hidden space-y-3">
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase mb-1">Admin PIN Kodu</label>
+          <input type="password" inputmode="numeric" id="adminPinInput" placeholder="PIN (Varsayılan: 2026)" class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-500 text-sm font-semibold" />
+        </div>
+        <p id="adminError" class="text-xs text-rose-500 font-bold hidden"></p>
         <button onclick="handleAdminLogin()" class="w-full py-3.5 rounded-2xl bg-slate-900 dark:bg-indigo-600 hover:opacity-95 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg transition">
           Yönetici Olarak Gir ↗
         </button>
@@ -94,27 +112,52 @@
     </div>
   </div>
 
-  <!-- SOFT CLOUD TOP BAR & 4-MEMBER GROUP AVATARS -->
+  <!-- PROFILE PHOTO UPDATE MODAL -->
+  <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-[32px] max-w-sm w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 text-center space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Profil Kartım</h3>
+        <button onclick="closeModal('profileModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
+      </div>
+      <div id="myProfileAvatarLarge" class="w-24 h-24 rounded-full mx-auto overflow-hidden bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-3xl font-extrabold shadow-md"></div>
+      <div>
+        <div id="myProfileName" class="text-lg font-extrabold text-slate-900 dark:text-white"></div>
+        <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">🔒 Bu cihaza kalıcı olarak kilitli</div>
+      </div>
+      <div>
+        <label for="updateAvatarInput" class="inline-block w-full py-3 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white text-xs font-extrabold cursor-pointer shadow">
+          📸 Profil Fotoğrafını Değiştir
+        </label>
+        <input type="file" id="updateAvatarInput" accept="image/*" class="hidden" onchange="handleUpdateMyAvatar(event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP CLOUD HEADER & 4-PERSON PHOTO AVATARS -->
   <header class="max-w-2xl mx-auto px-4 pt-4 pb-2">
     <div class="flex items-center justify-between gap-2 mb-3">
-      <!-- 4 Circular Group Avatars -->
+      <!-- 4 Circular Photo Avatars (Reference Group Trip Style) -->
       <div class="flex items-center -space-x-2" id="groupAvatarsBar"></div>
 
-      <!-- Quick Action Pills (Japonca Kartlar & Dark Mode) -->
-      <div class="flex items-center gap-2">
-        <button onclick="openPhraseCardsModal()" class="glass-card px-3 h-9 rounded-full border border-white/70 dark:border-slate-700/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-2xs active:scale-95 transition">
-          <span>🗣️</span>
-          <span>Kartlar</span>
+      <!-- Quick Action Pills -->
+      <div class="flex items-center gap-1.5">
+        <button onclick="openNotesModal()" class="glass-card px-2.5 h-9 rounded-full border border-white/70 dark:border-slate-700/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1 shadow-2xs active:scale-95 transition">
+          <span>📌</span>
+          <span id="notesCountBadge">Notlar</span>
         </button>
-        <button onclick="toggleDarkMode()" id="themeToggleBtn" class="glass-card w-9 h-9 rounded-full border border-white/70 dark:border-slate-700/80 text-slate-700 dark:text-amber-300 flex items-center justify-center text-sm shadow-2xs active:scale-95 transition" title="Koyu / Açık Tema">
+        <button onclick="openPhraseCardsModal()" class="glass-card px-2.5 h-9 rounded-full border border-white/70 dark:border-slate-700/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-1 shadow-2xs active:scale-95 transition">
+          <span>🗣️</span>
+          <span class="hidden sm:inline">Kartlar</span>
+        </button>
+        <button onclick="toggleDarkMode()" id="themeToggleBtn" class="glass-card w-9 h-9 rounded-full border border-white/70 dark:border-slate-700/80 text-slate-700 dark:text-amber-300 flex items-center justify-center text-sm shadow-2xs active:scale-95 transition">
           🌙
         </button>
       </div>
     </div>
 
-    <!-- Editorial Greeting & Live Currency Strip -->
+    <!-- Greeting & Live Currency Strip -->
     <div class="flex items-end justify-between gap-2 mb-3">
-      <div>
+      <div onclick="openMyProfile()" class="cursor-pointer">
         <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">
           <span id="roleGreeting">Hoş geldin</span>
           <span id="syncIndicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -155,7 +198,7 @@
   <!-- VIEW 1: TIMELINE / ITINERARY VIEW -->
   <main id="timelineViewSection" class="max-w-2xl mx-auto px-4 pt-2 space-y-4">
 
-    <!-- COMPACT PROGRESS PILL -->
+    <!-- PROGRESS PILL -->
     <div class="glass-card rounded-2xl px-4 py-2.5 border border-white/80 dark:border-slate-800 flex items-center justify-between gap-3 shadow-2xs">
       <div class="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 shrink-0">Tur İlerlemesi</div>
       <div class="flex-1 h-2 bg-slate-200/70 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -164,15 +207,19 @@
       <div id="overallProgressText" class="text-[11px] font-extrabold text-slate-900 dark:text-white shrink-0">0/0</div>
     </div>
 
-    <!-- FEATURED HERO CARD (NEXT TARGET - INSPIRED BY REFERENCE CARD) -->
-    <div id="nextTargetCard" class="rounded-[28px] p-5 text-white shadow-xl relative overflow-hidden bg-gradient-to-br from-slate-800 via-indigo-950 to-slate-900 border border-white/15">
-      <div class="flex items-center justify-between gap-2 mb-3">
-        <span class="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-[10px] font-extrabold tracking-wider uppercase">
-          🎯 Sıradaki Hedef
-        </span>
-        <span id="nextTargetDayTag" class="text-[11px] text-sky-200 font-bold"></span>
+    <!-- FEATURED HERO CARD WITH REAL LANDMARK PHOTO -->
+    <div id="nextTargetCard" class="rounded-[28px] overflow-hidden text-white shadow-xl relative border border-white/20 bg-slate-900">
+      <img id="nextTargetImg" src="" alt="" class="absolute inset-0 w-full h-full object-cover opacity-55" />
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-slate-900/30"></div>
+      <div class="relative z-10 p-5">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-extrabold tracking-wider uppercase">
+            🎯 Sıradaki Hedef
+          </span>
+          <span id="nextTargetDayTag" class="text-[11px] text-sky-200 font-bold"></span>
+        </div>
+        <div id="nextTargetBody"></div>
       </div>
-      <div id="nextTargetBody"></div>
     </div>
 
     <!-- SELECTED DAY HEADER CARD -->
@@ -195,14 +242,13 @@
       </div>
     </div>
 
-    <!-- TIMELINE CARDS LIST -->
+    <!-- TIMELINE CARDS LIST WITH REAL PHOTOS -->
     <div id="stopsContainer" class="space-y-3.5"></div>
   </main>
 
-  <!-- VIEW 2: IN-APP INTERACTIVE MAP VIEW (INSPIRED BY REFERENCE SCREEN 2) -->
+  <!-- VIEW 2: IN-APP INTERACTIVE MAP VIEW -->
   <section id="mapViewSection" class="hidden max-w-2xl mx-auto px-4 pt-2 space-y-3">
     <div class="glass-card rounded-[28px] overflow-hidden border border-white/80 dark:border-slate-800 shadow-lg relative">
-      <!-- Top Map Floating Bar -->
       <div class="p-3 bg-white/90 dark:bg-slate-900/90 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
         <div class="text-xs font-extrabold text-slate-800 dark:text-white" id="mapHeaderTitle">1. Gün Rota Haritası</div>
         <div class="flex gap-1.5 text-[10px] font-extrabold">
@@ -210,18 +256,14 @@
           <button onclick="focusHomeOnMap('osaka')" class="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">🏠 Osaka Evi</button>
         </div>
       </div>
-
-      <!-- Leaflet Interactive Map Container -->
-      <div id="routeMap" class="w-full h-[360px] sm:h-[420px]"></div>
-
-      <!-- Bottom Selected Pin Summary Card -->
+      <div id="routeMap" class="w-full h-[370px] sm:h-[430px]"></div>
       <div id="mapSelectedPinCard" class="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
         <div class="text-xs text-slate-500">Haritadaki numaralı pinlere dokunarak durak detayını görebilirsiniz.</div>
       </div>
     </div>
   </section>
 
-  <!-- FLOATING PILL NAVIGATION DOCK (INSPIRED BY REFERENCE SCREENSHOTS) -->
+  <!-- FLOATING PILL NAVIGATION DOCK -->
   <div class="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
     <nav class="floating-dock pointer-events-auto rounded-full px-3 py-2 border border-white/80 dark:border-slate-700/80 flex items-center gap-1 sm:gap-2">
       <button onclick="switchMainView('timeline'); scrollToTop();" id="dockPlanBtn"
@@ -250,6 +292,24 @@
     </nav>
   </div>
 
+  <!-- GROUP SHARED NOTES MODAL (ORTAK GRUP NOTLARI) -->
+  <div id="notesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center sm:p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+      <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">📌 Ortak Grup Panosu & Notlar</h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Tüm 4 yolcu anlık not ve hatırlatma bırakabilir</p>
+        </div>
+        <button onclick="closeModal('notesModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-2.5 flex-1 text-xs" id="groupNotesList"></div>
+      <div class="p-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-2">
+        <input type="text" id="newGroupNoteInput" placeholder="Not yaz (Örn: USJ QR kodları bende)..." class="flex-1 px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold" />
+        <button onclick="addGroupNote()" class="px-4 py-2.5 rounded-2xl bg-rose-600 text-white font-extrabold text-xs">Gönder</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JAPONCA GÖSTER & GEÇ KARTLARI MODAL -->
   <div id="phraseCardsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center sm:p-4">
     <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
@@ -258,7 +318,7 @@
           <h3 class="text-base font-extrabold text-slate-900 dark:text-white">🗣️ Japonca "Göster & Geç" Kartları</h3>
           <p class="text-[11px] text-slate-500 dark:text-slate-400">Taksi şoförüne veya kasa görevlisine ekranı gösterin</p>
         </div>
-        <button onclick="closeModal('phraseCardsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">✕</button>
+        <button onclick="closeModal('phraseCardsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
       </div>
       <div class="p-4 overflow-y-auto space-y-3 text-xs">
         <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-1">
@@ -292,16 +352,18 @@
     </div>
   </div>
 
-  <!-- EXPANDABLE PLACE DETAILS MODAL -->
+  <!-- EXPANDABLE PLACE DETAILS MODAL WITH PHOTO -->
   <div id="placeDetailModal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center sm:p-4">
     <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
-      <div id="placeDetailHeader" class="p-5 text-white bg-gradient-to-r from-indigo-600 to-purple-800 flex items-start justify-between gap-3">
-        <div>
-          <span id="placeDetailBadge" class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase">Mekan Rehberi</span>
-          <h3 id="placeDetailTitle" class="text-lg font-extrabold mt-1.5 leading-snug">Mekan Adı</h3>
-          <p id="placeDetailCoords" class="text-[11px] text-white/80 font-mono mt-0.5"></p>
+      <div class="relative h-48 bg-slate-900 text-white flex flex-col justify-end p-5">
+        <img id="placeDetailImg" src="" alt="" class="absolute inset-0 w-full h-full object-cover opacity-70" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent"></div>
+        <button onclick="closeModal('placeDetailModal')" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center font-bold">✕</button>
+        <div class="relative z-10">
+          <span id="placeDetailBadge" class="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-extrabold uppercase">Mekan Rehberi</span>
+          <h3 id="placeDetailTitle" class="text-lg font-extrabold mt-1 leading-snug">Mekan Adı</h3>
+          <p id="placeDetailCoords" class="text-[10px] text-white/80 font-mono mt-0.5"></p>
         </div>
-        <button onclick="closeModal('placeDetailModal')" class="w-8 h-8 rounded-full bg-black/25 hover:bg-black/40 flex items-center justify-center font-bold shrink-0">✕</button>
       </div>
       <div class="p-5 overflow-y-auto space-y-4 text-xs leading-relaxed">
         <div>
@@ -334,7 +396,7 @@
           <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">11 Günlük Bütçe (4 Kişi)</h3>
           <p class="text-[11px] text-slate-500 dark:text-slate-400">Canlı kur ile sabit tur giderleri + kamera/alışveriş bütçesi</p>
         </div>
-        <button onclick="closeModal('budgetModal')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">✕</button>
+        <button onclick="closeModal('budgetModal')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
       </div>
       <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
         <div class="bg-slate-50 dark:bg-slate-800/70 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
@@ -343,7 +405,7 @@
               <span>Canlı JPY / TRY Kuru</span>
               <button onclick="fetchLiveExchangeRate(true)" class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-extrabold">🔄 Yenile</button>
             </div>
-            <div id="rateLastUpdated" class="text-[10px] text-slate-400 mt-0.5">Otomatik güncellenir</div>
+            <div id="rateLastUpdated" class="text-[10px] text-slate-400 mt-0.5">Sunucu canlı kur</div>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="text-xs font-bold text-slate-500">1 ¥ =</span>
@@ -400,7 +462,7 @@
     <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
       <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <h3 id="editModalTitle" class="text-base font-extrabold text-slate-900 dark:text-white">Durak Düzenle</h3>
-        <button onclick="closeModal('editModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">✕</button>
+        <button onclick="closeModal('editModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
       </div>
       <div class="p-4 overflow-y-auto space-y-3 text-xs">
         <input type="hidden" id="editStopId" />
@@ -488,28 +550,28 @@
     <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
       <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <h3 class="text-base font-extrabold text-slate-900 dark:text-white">💡 Japonya 2026 Kapsamlı Gezi Rehberi</h3>
-        <button onclick="closeModal('tipsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">✕</button>
+        <button onclick="closeModal('tipsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
       </div>
       <div class="p-4 overflow-y-auto space-y-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
         <div class="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200/70 dark:border-violet-900">
           <div class="font-extrabold text-violet-900 dark:text-violet-300 mb-1">📷 1. Bic Camera Kamera Alışverişi & Çift İndirim</div>
-          27 Kasım saat <b>10:00</b>'da <b>Bic Camera Yurakucho</b>'dan kameranızı alırken kasada <b>pasaportunuzun fiziksel aslını</b> göstererek %10 Tax-Free muafiyeti alın + Google'da <i>"Bic Camera tourist coupon"</i> aratıp barkodu okutarak ekstra %5–7 indirim kazanın. Garanti belgesini damgalatmayı unutmayın.
+          27 Kasım saat <b>10:00</b>'da <b>Bic Camera Yurakucho</b>'dan kameranızı alırken kasada <b>pasaportunuzun fiziksel aslını</b> göstererek %10 Tax-Free muafiyeti alın + Google'da <i>"Bic Camera tourist coupon"</i> aratıp barkodu okutarak ekstra %5–7 indirim kazanın.
         </div>
         <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900">
           <div class="font-extrabold text-amber-900 dark:text-amber-300 mb-1">🚕 2. 4 Kişi İçin Taksi Matematiği & Kapı Kuralı</div>
-          Tokyo'da açılış <b>¥500</b>, Osaka'da <b>¥600</b>'dür. 4 kişi metroya kişi başı ¥250–¥350 verdiğinde toplam ¥1,000–¥1,400 ödersiniz; 3.5 km'ye kadar taksi neredeyse aynı fiyata gelir. <b>Dikkat:</b> Taksi arka kapısı otomatik açılır/kapanır, kapıya el sürmeyin!
+          Tokyo'da açılış <b>¥500</b>, Osaka'da <b>¥600</b>'dür. 4 kişi metroya kişi başı ¥250–¥350 verdiğinde toplam ¥1,000–¥1,400 ödersiniz; 3.5 km'ye kadar taksi neredeyse aynı fiyata gelir. Taksi arka kapısı otomatiktir, el sürmeyin!
         </div>
         <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-900">
           <div class="font-extrabold text-indigo-900 dark:text-indigo-300 mb-1">🚄 3. Shinkansen Koltuk & Fuji Manzarası</div>
-          Tokyo → Shin-Osaka yönünde <b>D ve E (sağ cam)</b> koltukları hava açıksa Fuji Dağı'nı görür. SmartEX uygulamasından biletinizi önceden alıp Suica kartınıza tanımlarsanız gişede sıra beklemeden geçersiniz.
+          Tokyo → Shin-Osaka yönünde <b>D ve E (sağ cam)</b> koltukları hava açıksa Fuji Dağı'nı görür.
         </div>
         <div class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-900">
           <div class="font-extrabold text-rose-900 dark:text-rose-300 mb-1">🏎️ 4. Tokyo Drift & Gece Otomobil Kültürü Notu</div>
-          Shibuya Center-Gai ve Akihabara UDX otoparkı akşamları modifiye JDM araçların uğrak noktasıdır. Efsanevi <b>Daikoku PA</b> (Yokohama otoyol dinlenme tesisi) için ise toplu taşıma yoktur; Cuma akşamları sadece taksi veya kiralık araçla gidilebilir.
+          Shibuya Center-Gai ve Akihabara UDX otoparkı akşamları modifiye JDM araçların uğrak noktasıdır. Efsanevi <b>Daikoku PA</b> için toplu taşıma yoktur; Cuma akşamları sadece taksi veya kiralık araçla gidilebilir.
         </div>
         <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-900">
-          <div class="font-extrabold text-emerald-900 dark:text-emerald-300 mb-1">📱 5. iPhone Apple Wallet Suica & Nakit Kuralı</div>
-          iPhone Cüzdan'dan (+) simgesine basıp Ulaşım Kartı → Japan → Suica ekleyerek gişelerde telefonunuzu okutup geçebilirsiniz. Küçük sokak lezzetleri ve <b>Oi Bit Pazarı</b> için yanınızda mutlaka nakit Yen bulundurun.
+          <div class="font-extrabold text-emerald-900 dark:text-emerald-300 mb-1">📱 5. Apple Wallet Suica & Nakit Kuralı</div>
+          iPhone Cüzdan'dan dijital Suica ekleyerek gişelerde telefonunuzu okutup geçebilirsiniz. Küçük sokak lezzetleri ve <b>Oi Bit Pazarı</b> için yanınızda mutlaka nakit Yen bulundurun.
         </div>
       </div>
     </div>
@@ -519,18 +581,21 @@
   <div id="settingsModal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center sm:p-4">
     <div class="bg-white dark:bg-slate-900 rounded-t-[32px] sm:rounded-[32px] max-w-md w-full p-5 shadow-2xl space-y-4 border border-slate-100 dark:border-slate-800">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Sistem & Kullanıcı Ayarları</h3>
-        <button onclick="closeModal('settingsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">✕</button>
+        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Sistem & Cihaz Yönetimi</h3>
+        <button onclick="closeModal('settingsModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold">✕</button>
       </div>
       <div class="text-xs space-y-3">
-        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div class="font-bold text-slate-700 dark:text-slate-300 mb-0.5">Aktif Oturum</div>
-          <div id="currentSessionInfo" class="text-slate-600 dark:text-slate-200 font-semibold"></div>
+        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-slate-700 dark:text-slate-300">Aktif Oturum</div>
+            <div id="currentSessionInfo" class="text-slate-600 dark:text-slate-200 font-extrabold mt-0.5"></div>
+          </div>
+          <button onclick="openMyProfile()" id="btnOpenMyProfile" class="hidden px-3 py-1.5 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-extrabold">Profilim</button>
         </div>
 
         <div id="adminControlsBox" class="hidden space-y-3 border-t border-slate-100 dark:border-slate-800 pt-3">
           <div>
-            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">Kayıtlı Yolcuları Yönet (Maks. 4)</label>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">Cihaz Kilitli Yolcular (Kilidi Kaldırmak İçin Silin)</label>
             <div id="adminUserManager" class="space-y-1.5"></div>
           </div>
           <div>
@@ -545,8 +610,8 @@
           </button>
         </div>
 
-        <button onclick="logoutUser()" class="w-full py-3 rounded-2xl bg-slate-900 dark:bg-slate-800 text-white font-extrabold">
-          Çıkış Yap / Kullanıcı Değiştir
+        <button onclick="switchToAdminPrompt()" id="btnSwitchAdmin" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold">
+          👑 Admin Moduna Geç / Çıkış
         </button>
       </div>
     </div>
@@ -556,22 +621,30 @@
 const TOKYO_COORDS = "35.7534716,139.7996485";
 const OSAKA_COORDS = "34.6303610,135.4933890";
 
-const VISUAL_THEMES = {
-  flight: { bg: "from-sky-600 to-indigo-800", icon: "✈️", kanji: "空港", tag: "Havalimanı" },
-  home: { bg: "from-emerald-600 to-teal-800", icon: "🏠", kanji: "宿泊先", tag: "Konaklama" },
-  food: { bg: "from-amber-500 to-orange-700", icon: "🍜", kanji: "グルメ", tag: "Gastronomi" },
-  shinkansen: { bg: "from-blue-600 to-cyan-800", icon: "🚄", kanji: "新幹線", tag: "Hızlı Tren" },
-  osaka_night: { bg: "from-fuchsia-600 to-purple-900", icon: "🦀", kanji: "道頓堀", tag: "Dotonbori" },
-  usj: { bg: "from-red-600 to-amber-600", icon: "🎢", kanji: "USJ大阪", tag: "Tema Park" },
-  nara: { bg: "from-lime-600 to-emerald-800", icon: "🦌", kanji: "奈良公園", tag: "Nara & Doğa" },
-  castle: { bg: "from-amber-600 to-red-800", icon: "🏯", kanji: "歴史・城", tag: "Tapınak & Kale" },
-  disney: { bg: "from-cyan-600 to-blue-900", icon: "🏰", kanji: "ディズニー", tag: "DisneySea" },
-  harry: { bg: "from-purple-800 to-slate-950", icon: "🪄", kanji: "ハリポタ", tag: "Harry Potter" },
-  shopping: { bg: "from-violet-600 to-indigo-900", icon: "📷", kanji: "カメラ・買物", tag: "Kamera & Outlet" },
-  wagyu: { bg: "from-rose-700 to-red-950", icon: "🥩", kanji: "A5和牛", tag: "Wagyu Ziyafeti" },
-  shibuya: { bg: "from-pink-600 to-indigo-900", icon: "🌆", kanji: "渋谷スカイ", tag: "Shibuya" },
-  drift: { bg: "from-red-700 via-zinc-900 to-slate-950", icon: "🏎️", kanji: "東京ドリフト", tag: "Tokyo Drift" },
-  flea: { bg: "from-teal-600 to-emerald-900", icon: "🧺", kanji: "蚤の市", tag: "Bit Pazarı" }
+// Curated High-Resolution Real Landmark Photos (Unsplash CDN)
+const LANDMARK_PHOTOS = {
+  flight: "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=800&q=80",
+  home: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80",
+  food: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+  shinkansen: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=800&q=80",
+  osaka_night: "https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80",
+  usj: "https://images.unsplash.com/photo-1624601573012-efb68931cc8f?auto=format&fit=crop&w=800&q=80",
+  nara: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=800&q=80",
+  castle: "https://images.unsplash.com/photo-1590253230532-a67f6bc61c9e?auto=format&fit=crop&w=800&q=80",
+  disney: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=800&q=80",
+  harry: "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?auto=format&fit=crop&w=800&q=80",
+  shopping: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
+  wagyu: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+  shibuya: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=800&q=80",
+  drift: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+  flea: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=800&q=80"
+};
+
+const VISUAL_KANJI = {
+  flight: "空港", home: "宿泊先", food: "グルメ", shinkansen: "新幹線",
+  osaka_night: "道頓堀", usj: "USJ大阪", nara: "奈良公園", castle: "歴史・城",
+  disney: "ディズニー", harry: "ハリポタ", shopping: "カメラ・買物", wagyu: "A5和牛",
+  shibuya: "渋谷スカイ", drift: "東京ドリフト", flea: "蚤の市"
 };
 
 const DEFAULT_DATA = {
@@ -579,7 +652,9 @@ const DEFAULT_DATA = {
   rateUpdatedAt: "21 Kas 2026",
   shoppingBudgetJpy: 0,
   adminPin: "2026",
-  registeredUsers: [],
+  groupNotes: [
+    { id: 1, author: "Sistem", text: "27 Kasım 10:00 Bic Camera Yurakucho için pasaport asıllarını unutmayalım!", time: "26 Kas" }
+  ],
   days: [
     {
       dayNum: 1,
@@ -593,10 +668,10 @@ const DEFAULT_DATA = {
           id: "d1_1", time: "19:30", type: "transit", visual: "flight", completed: false,
           title: "Haneda Havalimanı (HND) → Tokyo Evi Transfer",
           desc: "02:30 İstanbul uçuşu sonrası akşam varış. Pasaport, eSIM ve Apple Wallet Suica kurulumu.",
-          longDesc: "Tokyo Haneda Havalimanı Terminal 3'e iniş yaptıktan sonra Visit Japan Web QR kodlarınızla hızlıca geçiş yapabilirsiniz. Uzun uçuş yorgunluğu göz önüne alındığında kapıdan kapıya transfer en konforlu seçenektir.",
+          longDesc: "Tokyo Haneda Havalimanı Terminal 3'e iniş yaptıktan sonra Visit Japan Web QR kodlarınızla hızlıca geçiş yapabilirsiniz.",
           highlights: "Terminal 3 geliş katında 7-Eleven ATM'den nakit Yen çekimi, eSIM aktivasyonu ve iPhone Wallet Suica yüklemesi.",
-          transportReason: "11 saatlik uçuş yorgunluğu sonrası 4 kişi için kapıdan kapıya Taksi (¥13,200 / kişi başı ¥3,300) aktarmalı trene kıyasla yorgunluğu sıfırlar ve doğrudan ev koordinatına bırakır.",
-          cost4: 0, distanceSummary: "28.5 km • 40-52 dk", coords: TOKYO_COORDS,
+          transportReason: "11 saatlik uçuş yorgunluğu sonrası 4 kişi için kapıdan kapıya Taksi (¥13,200) aktarmalı trene kıyasla yorgunluğu sıfırlar ve doğrudan ev koordinatına bırakır.",
+          cost4: 0, distanceSummary: "28.5 km • 40 dk", coords: TOKYO_COORDS,
           recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
             train: { cost4: 2680, note: "28.5 km • 52 dk | Keikyu → Shinagawa → JR Joban (2 aktarma)" },
@@ -669,11 +744,11 @@ const DEFAULT_DATA = {
           desc: "Tokyo İstasyonu'na 5 dk mesafedeki dev ana mağazadan kamera alımı (%10 Tax-Free + Turist Kuponu).",
           longDesc: "Osaka yolunuzun tam üzerindeki en büyük Bic Camera ana şubesidir. Sırt çantalarınızla rahatça gezip istediğiniz kamera gövdesi/lensini deneyebilir, pasaportunuzun aslıyla %10 Tax-Free + %5-7 turist indirim kuponunu birlikte kullanabilirsiniz.",
           highlights: "Pasaportun fiziksel aslı şarttır! Kutu ve garanti belgesini kontrol ettirip 45 dakikada işleminizi tamamlayabilirsiniz.",
-          transportReason: "Tokyo İstasyonu Yaesu/Marunouchi çıkışına sadece 450 metre (5-6 dk yürüyüş) mesafededir; sırt çantalarıyla ekstra trene binmeye gerek yoktur.",
+          transportReason: "Tokyo İstasyonu Yaesu/Marunouchi çıkışına sadece 450 metre (5-6 dk yürüyüş) mesafededir.",
           cost4: 0, distanceSummary: "450 m • 5 dk yürüyüş", coords: "35.6752,139.7634",
           recommendedMode: "walk", selectedMode: "walk",
           modes: {
-            train: { cost4: 600, note: "Yurakucho → Tokyo İst. 1 durak (Gereksiz, yürümek daha hızlı)" },
+            train: { cost4: 600, note: "Yurakucho → Tokyo İst. 1 durak (Gereksiz)" },
             taxi: { cost4: 500, note: "450 m • 2 dk" },
             bus: { cost4: 0, note: "Yürüme mesafesi" },
             walk: { cost4: 0, note: "450 m • 5 dk | Doğrudan Tokyo İstasyonu Shinkansen gişelerine yürüyüş" }
@@ -683,9 +758,9 @@ const DEFAULT_DATA = {
           id: "d2_3", time: "11:30", type: "transit", visual: "shinkansen", completed: false,
           title: "Tokaido Shinkansen Nozomi: Tokyo → Shin-Osaka (Ekiben Öğle)",
           desc: "Kamera alışverişi sonrası 11:30 hızlı treniyle Osaka'ya geçiş (2 saat 30 dk). Sağ camdan Fuji manzarası!",
-          longDesc: "Tokyo İstasyonu'ndan Ekiben (tren yemek kutusu) alıp 11:30 Nozomi Shinkansen'e binerek 14:00'te Shin-Osaka'da olursunuz. D ve E koltukları (sağ taraf) hava açıksa Fuji Dağı'nı görür.",
+          longDesc: "Tokyo İstasyonu'ndan Ekiben (tren yemek kutusu) alıp 11:30 Nozomi Shinkansen'e binerek 14:00'te Shin-Osaka'da olursunuz. D ve E koltukları hava açıksa Fuji Dağı'nı görür.",
           highlights: "Trende Ekiben öğle yemeği ve sırt çantalarıyla baş üstü rafında kolay yerleşim.",
-          transportReason: "2.5 saatte sıfır yorgunlukla Osaka'ya ulaştırır; kamera alışverişi sonrası günün geri kalanını tamamen Osaka'ya ayırmanızı sağlar.",
+          transportReason: "2.5 saatte sıfır yorgunlukla Osaka'ya ulaştırır.",
           cost4: 5600, distanceSummary: "515 km • 2 sa 30 dk", coords: "34.7335,135.5003",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -701,8 +776,8 @@ const DEFAULT_DATA = {
           desc: "Koordinat: 34.6303610, 135.4933890. Sırt çantalarını bırakıp kısa dinlenme.",
           longDesc: "Kishinosato eviniz Yotsubashi metro hattına çok yakın sakin bir mahallededir; Namba ve Dotonbori'ye sadece 4 durak mesafededir.",
           highlights: "Ev girişi, yeni kameranın kurulumu ve 30 dk dinlenme.",
-          transportReason: "Sadece sırt çantalarınız olduğu için Shin-Osaka'dan Midosuji + Yotsubashi metrosuyla 32 dk'da çok ucuza (¥1,320) veya isterseniz direkt taksiyle (¥5,400) geçebilirsiniz.",
-          cost4: 0, distanceSummary: "12.4 km • 25-32 dk", coords: OSAKA_COORDS,
+          transportReason: "Sadece sırt çantalarınız olduğu için Shin-Osaka'dan Midosuji + Yotsubashi metrosuyla 32 dk'da çok ucuza (¥1,320) geçebilirsiniz.",
+          cost4: 0, distanceSummary: "12.4 km • 32 dk metro", coords: OSAKA_COORDS,
           recommendedMode: "train", selectedMode: "train",
           modes: {
             train: { cost4: 1320, note: "12.4 km • 32 dk | Shin-Osaka → Namba → Kishinosato (Kişi ¥330)" },
@@ -791,7 +866,7 @@ const DEFAULT_DATA = {
           desc: "Super Nintendo World (Mario Kart), Harry Potter ve Jurassic Park (4 Kişi Giriş).",
           longDesc: "Dünyanın en popüler tema parklarından biri. Kapıdan girer girmez USJ mobil uygulamasından Super Nintendo World için ücretsiz 'Area Timed Entry Ticket' almayı unutmayın.",
           highlights: "Mario Kart: Koopa's Challenge, Harry Potter and the Forbidden Journey ve Flying Dinosaur.",
-          transportReason: "Sabah erken saatte 2 tren aktarması yapmadan doğrudan kapı önünde olmak için 4 kişi Taksi (¥4,600 / kişi ¥1,150) zaman ve enerji kazandırır.",
+          transportReason: "Sabah erken saatte 2 tren aktarması yapmadan doğrudan kapı önünde olmak için 4 kişi Taksi (¥4,600) zaman ve enerji kazandırır.",
           cost4: 38400, distanceSummary: "10.2 km • 20 dk taksi", coords: "34.6654,135.4323",
           recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
@@ -822,8 +897,8 @@ const DEFAULT_DATA = {
           title: "Akşam Yemeği: Shinsekai & Tsutenkaku Kulesi",
           desc: "Evinize çok yakın nostaljik neon mahallesi ve Kushikatsu Daruma.",
           longDesc: "1912'de Paris ve Coney Island'dan esinlenerek kurulan Shinsekai, 1960'ların retro Japonya atmosferini koruyan renkli bir mahalledir.",
-          highlights: "Kushikatsu (çöp şişte çıtır kızartmalar — sos kabına ikinci kez bandırmak yasaktır!) ve Tsutenkaku Kulesi ışıkları.",
-          transportReason: "Universal City istasyonundan JR Yumesaki + Osaka Loop hattıyla Shin-Imamiya'ya tek aktarmayla hızlı ve ucuz ulaşılır.",
+          highlights: "Kushikatsu ve Tsutenkaku Kulesi ışıkları.",
+          transportReason: "Universal City istasyonundan JR Yumesaki + Osaka Loop hattıyla Shin-Imamiya'ya tek aktarmayla hızlı ulaşılır.",
           cost4: 8400, distanceSummary: "9.4 km • 26 dk tren", coords: "34.6525,135.5063",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -839,7 +914,7 @@ const DEFAULT_DATA = {
           desc: "Shinsekai'den Nishinari evinize 6 dakikalık dönüş.",
           longDesc: "Tüm gün USJ'de 15.000+ adım attıktan sonra evinize en yakın noktadan hızlı dönüş.",
           highlights: "Mesafe sadece 2.1 km olduğu için 4 kişi taksi ücreti metro biletleriyle neredeyse aynıdır.",
-          transportReason: "USJ yorgunluğu sonrası 2.1 km için 4 kişi toplam ¥1,200 (kişi ¥300) taksi en akıllıca seçenektir.",
+          transportReason: "USJ yorgunluğu sonrası 2.1 km için 4 kişi toplam ¥1,200 taksi en akıllıca seçenektir.",
           cost4: 0, distanceSummary: "2.1 km • 6 dk taksi", coords: OSAKA_COORDS,
           recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
@@ -879,9 +954,9 @@ const DEFAULT_DATA = {
           id: "d4_2", time: "09:45", type: "sight", visual: "nara", completed: false,
           title: "Nara Park (Geyikli Park) & Todai-ji Tapınağı",
           desc: "1.200'den fazla serbest geyik ve dünyanın en büyük ahşap yapısı Todai-ji.",
-          longDesc: "Japonya'nın ilk kalıcı başkenti olan Nara'da geyikler kutsal kabul edilir ve parkta özgürce dolaşır. Kraker (Shika Senbei) verirken başlarını eğerek selam verirler.",
+          longDesc: "Japonya'nın ilk kalıcı başkenti olan Nara'da geyikler kutsal kabul edilir ve parkta özgürce dolaşır.",
           highlights: "Todai-ji içindeki 15 metrelik bronz Dev Buda heykeli ve geyiklerle fotoğraf.",
-          transportReason: "Kintetsu Rapid Express treni dağ tünelinden geçerek 38 dakikada doğrudan Nara Park girişine ulaşır; taksiden bile hızlı ve 5 kat ucuzdur.",
+          transportReason: "Kintetsu Rapid Express treni dağ tünelinden geçerek 38 dakikada doğrudan Nara Park girişine ulaşır.",
           cost4: 4000, distanceSummary: "34.5 km • 38 dk tren", coords: "34.6851,135.8430",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -897,7 +972,7 @@ const DEFAULT_DATA = {
           desc: "Nara güveç pilavı (Kamameshi) ve ünlü yeşil çaylı dövme Mochi.",
           longDesc: "Kintetsu-Nara istasyonunun hemen yanındaki üstü kapalı geleneksel alışveriş pasajı.",
           highlights: "Nakatanidou dükkanında tokmakla hızlı mochi dövme gösterisi ve taze sıcak Yomogi Mochi.",
-          transportReason: "Park dönüş yolunda istasyon üzerine denk gelir; yürüyüş en doğal rotadır.",
+          transportReason: "Park dönüş yolunda istasyon üzerine denk gelir.",
           cost4: 6800, distanceSummary: "900 m • 12 dk yürüyüş", coords: "34.6826,135.8286",
           recommendedMode: "walk", selectedMode: "walk",
           modes: {
@@ -912,8 +987,8 @@ const DEFAULT_DATA = {
           title: "Osaka Kalesi (Osaka Castle) & Sonbahar Bahçesi",
           desc: "Kasım sonu altın sarısı ginkgo ağaçları eşliğinde ikonik Japon kalesi.",
           longDesc: "1583 yılında Toyotomi Hideyoshi tarafından inşa edilen kale, devasa taş surları ve hendekleriyle Osaka'nın simgesidir.",
-          highlights: "8. kat seyir terasından Osaka silueti ve kale bahçesindeki sonbahar yaprakları (Momiji).",
-          transportReason: "Nara'dan Kintetsu + JR Loop hattıyla 42 dakikada ekonomik ve konforlu ulaşım sağlanır.",
+          highlights: "8. kat seyir terasından Osaka silueti ve kale bahçesindeki sonbahar yaprakları.",
+          transportReason: "Nara'dan Kintetsu + JR Loop hattıyla 42 dakikada ekonomik ulaşım sağlanır.",
           cost4: 2400, distanceSummary: "31.0 km • 42 dk tren", coords: "34.6873,135.5262",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -929,7 +1004,7 @@ const DEFAULT_DATA = {
           desc: "12 metre yüksekliğinde devasa aslan ağzı sahnesiyle ünlü etkileyici tapınak.",
           longDesc: "Dev aslan ağzının kötü ruhları yutup ziyaretçilere şans ve başarı getirdiğine inanılır.",
           highlights: "Gün batımı sonrası ışıklandırılan dev aslan başı önünde fotoğraf.",
-          transportReason: "Kale çıkışından metro istasyonuna 12 dk yürüyüp aktarma yapmak yerine 4 kişi Taksi (¥2,300) doğrudan tapınak kapısına 13 dakikada bırakır.",
+          transportReason: "Kale çıkışından 4 kişi Taksi (¥2,300) doğrudan tapınak kapısına 13 dakikada bırakır.",
           cost4: 0, distanceSummary: "5.2 km • 13 dk taksi", coords: "34.6612,135.4966",
           recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
@@ -971,7 +1046,7 @@ const DEFAULT_DATA = {
           desc: "'Osaka'nın Mutfağı'nda taze deniz ürünleri, Wagyu şiş ve sabah kahvaltısı.",
           longDesc: "190 yılı aşkın geçmişe sahip Kuromon Pazarı, 150'den fazla tezgahıyla sabah saatlerinde en taze ürünleri sunar.",
           highlights: "Izgara deniz tarağı, Kobe/Wagyu et şişleri, taze çilek ve melon suyu.",
-          transportReason: "Kishinosato'dan Namba/Nipponbashi hattıyla 10 dakikada pazar girişine ulaşılır.",
+          transportReason: "Kishinosato'dan Namba hattıyla 10 dakikada pazar girişine ulaşılır.",
           cost4: 8000, distanceSummary: "4.3 km • 10 dk metro", coords: "34.6654,135.5063",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -985,7 +1060,7 @@ const DEFAULT_DATA = {
           id: "d5_2", time: "11:30", type: "sight", visual: "shibuya", completed: false,
           title: "Umeda Sky Building (Kuchu Teien Gözlemevi)",
           desc: "173 metre yükseklikte iki kuleyi birleştiren açık hava köprüsü ve Osaka panoraması.",
-          longDesc: "Dünyanın ilk kemerli gökdelenlerinden biri olan Umeda Sky Building'in tepesindeki 360 derecelik açık hava terası rüzgarlı ve etkileyici bir manzara sunar.",
+          longDesc: "Dünyanın ilk kemerli gökdelenlerinden biri olan Umeda Sky Building'in tepesindeki 360 derecelik açık hava terası etkileyici bir manzara sunar.",
           highlights: "Boşlukta asılı duran cam tünelli yürüyen merdivenler.",
           transportReason: "Namba'dan Midosuji metro hattıyla Umeda'ya 9 dakikada ulaşılır.",
           cost4: 6000, distanceSummary: "5.4 km • 14 dk metro", coords: "34.7052,135.4897",
@@ -1018,7 +1093,7 @@ const DEFAULT_DATA = {
           title: "Shinkansen Nozomi: Shin-Osaka → Tokyo Dönüş",
           desc: "2 saat 30 dk hızlı tren dönüşü ve Kita-Senju evine yerleşme.",
           longDesc: "Tokyo İstasyonu'na varışta akşam iş çıkışı kalabalığına denk gelinebileceği için son etapta taksi veya Ueno-Tokyo hattı seçilebilir.",
-          highlights: "Sol cam kenarından (A koltuğu) akşamüstü Fuji Dağı silueti.",
+          highlights: "Sol cam kenarından akşamüstü Fuji Dağı silueti.",
           transportReason: "Shinkansen + akşam saatinde Tokyo İstasyonu'ndan Adachi eve 4 kişi Taksi (¥4,600) kalabalık tren aktarmasını önler.",
           cost4: 0, distanceSummary: "515 km • 2 sa 30 dk", coords: TOKYO_COORDS,
           recommendedMode: "taxi", selectedMode: "taxi",
@@ -1034,7 +1109,7 @@ const DEFAULT_DATA = {
           title: "Akşam Yemeği: Kita-Senju Yakitori & Erken Dinlenme",
           desc: "Yarınki tam gün DisneySea öncesi ev sokağında yemek ve erken uyku.",
           longDesc: "Kita-Senju'nun ünlü 'Nomiyokocho' bölgesinde kömür ateşinde tavuk şişler.",
-          highlights: "Negima (taze soğanlı tavuk şiş) ve Tsukune (tavuk köftesi).",
+          highlights: "Negima ve Tsukune.",
           transportReason: "Eve 350 metre mesafededir.",
           cost4: 6400, distanceSummary: "350 m • 4 dk yürüyüş", coords: TOKYO_COORDS,
           recommendedMode: "walk", selectedMode: "walk",
@@ -1075,8 +1150,8 @@ const DEFAULT_DATA = {
           id: "d6_2", time: "08:30", type: "sight", visual: "disney", completed: false,
           title: "Tokyo DisneySea (Tam Gün & Gece Gösterisi)",
           desc: "Dünyada sadece Tokyo'da olan deniz temalı Disney parkı & Fantasy Springs.",
-          longDesc: "Yetişkinlere de hitap eden görkemli volkan manzarası, Venedik kanalları ve yeni açılan Fantasy Springs (Frozen, Tangled, Peter Pan) bölgesiyle benzersizdir.",
-          highlights: "Journey to the Center of the Earth, Tower of Terror, Indiana Jones ve gece 19:30 Believe! Sea of Dreams su/lazer gösterisi.",
+          longDesc: "Yetişkinlere de hitap eden görkemli volkan manzarası, Venedik kanalları ve yeni açılan Fantasy Springs bölgesiyle benzersizdir.",
+          highlights: "Journey to the Center of the Earth, Tower of Terror ve gece Believe! Sea of Dreams şovu.",
           transportReason: "Sabah 08:00 Tokyo metrosu yoğun iş saatine denk geldiği için 4 kişi direkt Taksi (¥9,600) kalabalığa girmeden kapıya bırakır.",
           cost4: 37600, distanceSummary: "21.5 km • 35 dk taksi", coords: "35.6267,139.8851",
           recommendedMode: "taxi", selectedMode: "taxi",
@@ -1092,7 +1167,7 @@ const DEFAULT_DATA = {
           title: "Öğle & Akşam Yemeği: DisneySea Restoranları",
           desc: "Arendelle Royal Banquet veya Vulcania restoranlarında yemek.",
           longDesc: "Park içindeki temalı restoranlarda dinlenme ve yemek molaları.",
-          highlights: "Arendelle Kalesi içi yemek salonu ve deniz tuzlu dondurma.",
+          highlights: "Arendelle Kalesi içi yemek salonu.",
           transportReason: "Park içi yürüyüş mesafesindedir.",
           cost4: 12000, distanceSummary: "Park içi", coords: "35.6267,139.8851",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1108,8 +1183,8 @@ const DEFAULT_DATA = {
           title: "Kita-Senju Eve Dönüş",
           desc: "Gece gösterisi sonrası Tokyo evinize dönüş.",
           longDesc: "DisneySea kapanışı sonrası eve dönüş.",
-          highlights: "Maihama istasyonu kapanış saatinde kalabalık olabilir; dilerseniz taksi durağından eve geçebilirsiniz.",
-          transportReason: "21:30'da trenler rahatlamış olur; hem ekonomik hem hızlı tren (48 dk) uygundur, çok yorulursanız taksi seçebilirsiniz.",
+          highlights: "21:30'da trenler rahatlamış olur.",
+          transportReason: "21:30'da trenler rahatlamış olur; hem ekonomik hem hızlı tren (48 dk) uygundur.",
           cost4: 0, distanceSummary: "21.5 km • 48 dk tren", coords: TOKYO_COORDS,
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -1133,8 +1208,8 @@ const DEFAULT_DATA = {
           id: "d7_1", time: "10:00", type: "food", visual: "food", completed: false,
           title: "Geç Kahvaltı: Komeda's Coffee Kita-Senju",
           desc: "Dünkü DisneySea yorgunluğunu atmak için sabah uyku sonrası rahat kahvaltı.",
-          longDesc: "İki yoğun gün üst üste olmaması için bugün program 10:00'da başlıyor. Komeda's Coffee'de kahve siparişinin yanında kızarmış kalın Japon ekmeği ikram edilir.",
-          highlights: "Katsupan (çıtır sandviç) ve buzlu/sıcak Japon kahvesi.",
+          longDesc: "İki yoğun gün üst üste olmaması için bugün program 10:00'da başlıyor.",
+          highlights: "Katsupan ve Japon kahvesi.",
           transportReason: "Eve 500 metre yürüme mesafesindedir.",
           cost4: 4200, distanceSummary: "500 m • 6 dk yürüyüş", coords: "35.7495,139.8035",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1149,9 +1224,9 @@ const DEFAULT_DATA = {
           id: "d7_2", time: "12:00", type: "sight", visual: "harry", completed: false,
           title: "Warner Bros. Studio Tour Tokyo – Harry Potter",
           desc: "Kapalı alanda rahat tempoda Büyük Salon, Diagon Yolu ve 9¾ Peronu turu.",
-          longDesc: "Eski Toshimaen eğlence parkı yerine kurulan dünyanın en büyük kapalı Harry Potter stüdyosu. Kendi hızınızda, yorulmadan gezebileceğiniz harika bir iç mekan deneyimidir.",
-          highlights: "Büyük Salon kapılarının açılışı, Yasak Orman, Hogwarts Ekspresi ve yeşil ekran süpürge uçuşu.",
-          transportReason: "Öğle saatinde metro boş ve hızlıdır; Ikebukuro aktarmasıyla Toshimaen stüdyo kapısının tam önünde inersiniz.",
+          longDesc: "Dünyanın en büyük kapalı Harry Potter stüdyosu. Kendi hızınızda, yorulmadan gezebileceğiniz harika bir iç mekan deneyimidir.",
+          highlights: "Büyük Salon, Yasak Orman, Hogwarts Ekspresi.",
+          transportReason: "Öğle saatinde metro boş ve hızlıdır; Toshimaen stüdyo kapısının tam önünde inersiniz.",
           cost4: 26000, distanceSummary: "18.8 km • 45 dk tren", coords: "35.7456,139.6461",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -1166,7 +1241,7 @@ const DEFAULT_DATA = {
           title: "Öğle Yemeği: Backlot Cafe & Butterbeer Bar",
           desc: "Stüdyo ortasındaki kafede Hogwarts temalı yemek molası.",
           longDesc: "Turun tam ortasında yer alan geniş dinlenme ve yemek alanı.",
-          highlights: "Bina renklerinde tatlılar ve hatıra bardaklı Butterbeer.",
+          highlights: "Hatıra bardaklı Butterbeer.",
           transportReason: "Stüdyo içi yürüme mesafesindedir.",
           cost4: 9600, distanceSummary: "Stüdyo içi", coords: "35.7456,139.6461",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1182,7 +1257,7 @@ const DEFAULT_DATA = {
           title: "Shinjuku: 3D Kedi Tabelası, Kabukicho & Omoide Yokocho",
           desc: "Dev 3D ekranlar, Godzilla başı ve tarihi dar sokak atmosferi.",
           longDesc: "Tokyo'nun gökdelenler ve neon ışıklarıyla ünlü eğlence merkezi.",
-          highlights: "Shinjuku Doğu Çıkışı 3D dev kedi ekranı ve 1940'lardan kalma Omoide Yokocho sokağı.",
+          highlights: "Shinjuku Doğu Çıkışı 3D dev kedi ekranı ve Omoide Yokocho.",
           transportReason: "Toshimaen istasyonundan Toei Oedo metro hattı aktarmasız 20 dakikada doğrudan Shinjuku'ya iner.",
           cost4: 0, distanceSummary: "11.2 km • 20 dk metro", coords: "35.6938,139.7005",
           recommendedMode: "train", selectedMode: "train",
@@ -1197,8 +1272,8 @@ const DEFAULT_DATA = {
           id: "d7_5", time: "19:45", type: "food", visual: "food", completed: false,
           title: "Akşam Yemeği: Shinjuku Gyukatsu & Eve Dönüş",
           desc: "Taş ızgarada çıtır dana eti (Gyukatsu) ve Kita-Senju eve dönüş.",
-          longDesc: "Dışı çıtır panko kaplı, içi az pişmiş sulu dana etini masadaki sıcak taşta kendi zevkinize göre pişireceğiniz eşsiz lezzet.",
-          highlights: "Gyukatsu Motomura set menüsü ve ardından eve dönüş.",
+          longDesc: "Dışı çıtır panko kaplı, içi az pişmiş sulu dana etini masadaki sıcak taşta pişireceğiniz eşsiz lezzet.",
+          highlights: "Gyukatsu Motomura set menüsü.",
           transportReason: "Tren ile 32 dk ekonomik dönüş sağlanabilir.",
           cost4: 9600, distanceSummary: "15.4 km • 32 dk tren", coords: TOKYO_COORDS,
           recommendedMode: "train", selectedMode: "train",
@@ -1239,14 +1314,14 @@ const DEFAULT_DATA = {
           id: "d8_2", time: "09:00", type: "shop", visual: "shopping", completed: false,
           title: "Gotemba Premium Outlets (Fuji Manzaralı Outlet)",
           desc: "290+ marka, Tax-Free alışveriş ve açık havada Fuji Dağı manzarası.",
-          longDesc: "Japonya'nın en büyük ve en prestijli outlet merkezi. Nike, Adidas, Gucci, Prada, North Face, Seiko ve Japon markalarında büyük indirimler bulunur.",
+          longDesc: "Japonya'nın en büyük ve en prestijli outlet merkezi.",
           highlights: "Yume no Ohashi köprüsünden Fuji Dağı fotoğrafı ve pasaportla %10 Tax-Free alışveriş.",
-          transportReason: "Tokyo İstasyonu Yaesu Güney Çıkışı'ndan kalkan direkt JR Highway Bus (95 dk) aktarmasız ve bagaj bölmeli en konforlu seçenektir.",
+          transportReason: "Tokyo İstasyonu Yaesu Güney Çıkışı'ndan kalkan direkt JR Highway Bus (95 dk) aktarmasız en konforlu seçenektir.",
           cost4: 0, distanceSummary: "96 km • 95 dk direkt otobüs", coords: "35.3071,138.9665",
           recommendedMode: "bus", selectedMode: "bus",
           modes: {
-            train: { cost4: 14800, note: "96 km • 110 dk | Tren + Shuttle (Aktarmalı)" },
-            taxi: { cost4: 42000, note: "96 km • 85 dk | Çok pahalı uzun mesafe" },
+            train: { cost4: 14800, note: "96 km • 110 dk | Tren + Shuttle" },
+            taxi: { cost4: 42000, note: "96 km • 85 dk | Uzun mesafe" },
             bus: { cost4: 14400, note: "96 km • 95 dk | Tokyo İst. Yaesu direkt otobüs (Kişi ¥3,600)" },
             walk: { cost4: 0, note: "96 km • Şehirler arası" }
           }
@@ -1271,8 +1346,8 @@ const DEFAULT_DATA = {
           id: "d8_4", time: "19:30", type: "food", visual: "wagyu", completed: false,
           title: "Akşam Yemeği: Ginza Steak Akasaka (銀座のステーキ 赤坂店)",
           desc: "Şeflerin önünüzde pişirdiği sınırsız A5 Kuroge Wagyu Teppanyaki ziyafeti!",
-          longDesc: "En üst kalite A5 sınıfı siyah Japon sığırı (Kuroge Wagyu) bifteklerinin şefler tarafından canlı Teppanyaki ocağında pişirilip sınırsız servis edildiği unutulmaz gastronomi durağı.",
-          highlights: "Sınırsız A5 Wagyu Sirloin & Filet mignon Teppanyaki kursu (Mutlaka önceden rezervasyon yapın).",
+          longDesc: "En üst kalite A5 sınıfı siyah Japon sığırı bifteklerinin şefler tarafından canlı Teppanyaki ocağında pişirilip sınırsız servis edildiği unutulmaz gastronomi durağı.",
+          highlights: "Sınırsız A5 Wagyu Sirloin & Filet mignon Teppanyaki kursu (Önceden rezervasyon gerekli).",
           transportReason: "Gotemba dönüş otobüsüyle Tokyo İstasyonu'na gelip Marunouchi metro hattıyla 8 dk içinde Akasaka-mitsuke'ye ulaşabilirsiniz.",
           cost4: 48000, distanceSummary: "98 km • Otobüs + 8 dk metro", coords: "35.6768,139.7369",
           recommendedMode: "bus", selectedMode: "bus",
@@ -1289,7 +1364,7 @@ const DEFAULT_DATA = {
           desc: "Akasaka'dan poşetlerle Kita-Senju evinize dönüş.",
           longDesc: "Harika bir Wagyu akşam yemeği ve outlet alışverişi sonrası eve dönüş.",
           highlights: "Chiyoda metro hattı Akasaka'dan Kita-Senju'ya aktarmasız tek tren gider.",
-          transportReason: "Outlet alışveriş poşetleri elinizdeyse 4 kişi Taksi (¥6,400) kapıya kadar taşır; poşetler azsa Chiyoda metrosu aktarmasız 25 dakikadır.",
+          transportReason: "Outlet alışveriş poşetleri elinizdeyse 4 kişi Taksi (¥6,400) kapıya kadar taşır.",
           cost4: 0, distanceSummary: "13.2 km • 25 dk", coords: TOKYO_COORDS,
           recommendedMode: "taxi", selectedMode: "taxi",
           modes: {
@@ -1329,8 +1404,8 @@ const DEFAULT_DATA = {
           id: "d9_2", time: "09:30", type: "sight", visual: "castle", completed: false,
           title: "Senso-ji Tapınağı & Nakamise Alışveriş Caddesi",
           desc: "Tokyo'nun en eski tapınağı, dev kırmızı fener ve geleneksel hediyelikler.",
-          longDesc: "MS 645 yılında kurulan Senso-ji, dev Kaminarimon (Gök Gürültüsü Kapısı) feneri ve 250 metrelik tarihi çarşısıyla eski Edo ruhunu yaşatır.",
-          highlights: "Omikuji (şans falı) çekimi, tütsü dumanı ve Tokyo Skytree manzarası.",
+          longDesc: "MS 645 yılında kurulan Senso-ji, dev Kaminarimon feneri ve 250 metrelik tarihi çarşısıyla eski Edo ruhunu yaşatır.",
+          highlights: "Omikuji (şans falı) çekimi ve Tokyo Skytree manzarası.",
           transportReason: "Kahvaltı noktasından 300 metre yürüme mesafesindedir.",
           cost4: 0, distanceSummary: "300 m • 4 dk yürüyüş", coords: "35.7148,139.7967",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1377,9 +1452,9 @@ const DEFAULT_DATA = {
           id: "d9_5", time: "17:00", type: "sight", visual: "drift", completed: false,
           title: "Tokyo Drift Caddesi (Shibuya Center-Gai / Dogenzaka) & Akşam Yemeği",
           desc: "Fast & Furious: Tokyo Drift filmine ilham veren neon caddeler ve Cuma gecesi JDM modifiye araç kültürü.",
-          longDesc: "Hızlı ve Öfkeli: Tokyo Drift filminin ikonik sahnelerinin geçtiği Shibuya Center-Gai ve Dogenzaka yokuşları, Cuma geceleri modifiye JDM araçların (GTR, Supra, RX-7) ve sokak kültürünün nabzının attığı yerdir.",
+          longDesc: "Hızlı ve Öfkeli: Tokyo Drift filminin ikonik sahnelerinin geçtiği Shibuya Center-Gai ve Dogenzaka yokuşları, Cuma geceleri modifiye JDM araçların ve sokak kültürünün nabzının attığı yerdir.",
           highlights: "Shibuya Center-Gai neon drift caddesi gece çekimleri ve Ichiran/Izakaya akşam yemeği.",
-          transportReason: "Akihabara'dan Ginza/Yamanote hattıyla Shibuya'ya direkt ulaşım çok pratiktir; dönüşte Kita-Senju'ya tek tren veya taksi seçilebilir.",
+          transportReason: "Akihabara'dan Ginza/Yamanote hattıyla Shibuya'ya direkt ulaşım çok pratiktir.",
           cost4: 9200, distanceSummary: "10.5 km • 24 dk tren", coords: "35.6601,139.6989",
           recommendedMode: "train", selectedMode: "train",
           modes: {
@@ -1403,10 +1478,10 @@ const DEFAULT_DATA = {
           id: "d10_1", time: "09:30", type: "shop", visual: "flea", completed: false,
           title: "Hafta Sonu Bit Pazarı: Oi Racecourse Flea Market (Tokyo City Flea Market)",
           desc: "Hafta sonu kurulan Tokyo'nun en büyük açık hava bit pazarı (35.5924, 139.7405) + Kahvaltı.",
-          longDesc: "Sadece Cumartesi ve Pazar günleri 09:00–14:30 arası kurulan bu dev bit pazarında 300'den fazla tezgahta vintage kimonolar, eski analog kameralar, plaklar, saatler, figürler ve antika eşyalar çok uygun fiyatlara bulunur.",
-          highlights: "Vintage analog kamera/saat tezgahları, el yapımı Japon seramikleri ve pazar girişindeki sokak lezzetleriyle sabah kahvaltısı.",
-          transportReason: "Kita-Senju'dan Hamamatsucho üzerinden Tokyo Monorail ile Oi Keibajo-mae durağına inip 3 dk yürüyerek pazara ulaşmak hem çok hızlı (38 dk) hem de manzaralıdır.",
-          cost4: 4500, distanceSummary: "21.8 km • 38 dk tren+monorail", coords: "35.5924,139.7405",
+          longDesc: "Sadece Cumartesi ve Pazar günleri 09:00–14:30 arası kurulan bu dev bit pazarında 300'den fazla tezgahta vintage kimonolar, eski analog kameralar, plaklar, saatler, figürler ve antika eşyalar bulunur.",
+          highlights: "Vintage analog kamera/saat tezgahları, el yapımı Japon seramikleri ve sokak lezzetleri.",
+          transportReason: "Kita-Senju'dan Hamamatsucho üzerinden Tokyo Monorail ile Oi Keibajo-mae durağına inip 3 dk yürüyerek pazara ulaşmak çok hızlıdır (38 dk).",
+          cost4: 4500, distanceSummary: "21.8 km • 38 dk monorail", coords: "35.5924,139.7405",
           recommendedMode: "train", selectedMode: "train",
           modes: {
             train: { cost4: 2480, note: "21.8 km • 38 dk | Kita-Senju → Hamamatsucho → Oi Keibajo-mae Monorail" },
@@ -1451,8 +1526,8 @@ const DEFAULT_DATA = {
           id: "d10_4", time: "16:00", type: "sight", visual: "shibuya", completed: false,
           title: "Shibuya Crossing, Hachiko & Shibuya Sky (Gün Batımı)",
           desc: "229 metre yükseklikteki açık hava terasından Tokyo gün batımı ve gece ışıkları.",
-          longDesc: "Dünyanın en kalabalık yaya geçidi Shibuya Crossing'i ve açık havada Fuji Dağı'ndan Tokyo Tower'a kadar 360 derece manzarayı izleyeceğiniz zirve noktası.",
-          highlights: "Gün batımı (16:30 civarı) ve gece ışıklarının yanışını yeni kameranızla tepeden çekme (Bilet 1 ay önce alınmalı).",
+          longDesc: "Dünyanın en kalabalık yaya geçidi Shibuya Crossing'i ve 360 derece manzarayı izleyeceğiniz zirve noktası.",
+          highlights: "Gün batımı ve gece ışıklarının yanışını yeni kameranızla tepeden çekme.",
           transportReason: "Shibuya istasyonunun hemen üstündeki Scramble Square binasındadır.",
           cost4: 10000, distanceSummary: "350 m • 4 dk yürüyüş", coords: "35.6584,139.7022",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1467,10 +1542,10 @@ const DEFAULT_DATA = {
           id: "d10_5", time: "19:30", type: "food", visual: "wagyu", completed: false,
           title: "Veda Akşam Yemeği: Shibuya Wagyu Shabu-Shabu & Eve Dönüş",
           desc: "Japonya'daki son akşam yemeği ve yarın sabah 06:15 uçuş hazırlığı için eve dönüş.",
-          longDesc: "İncecik dilimlenmiş Wagyu etlerinin kaynar dashi suyunda pişirildiği Shabu-Shabu/Sukiyaki veda ziyafeti.",
-          highlights: "Son gece kutlaması ve Kita-Senju evine çantaları toplamak için dönüş.",
-          transportReason: "Shibuya'dan Hanzomon/Tobu Skytree metro hattı Kita-Senju'ya aktarmasız tek tren gider (35 dk); yorgunsanız 4 kişi Taksi (¥7,200) de uygundur.",
-          cost4: 14000, distanceSummary: "17.2 km • 35 dk", coords: TOKYO_COORDS,
+          longDesc: "İncecik dilimlenmiş Wagyu etlerinin kaynar dashi suyunda pişirildiği veda ziyafeti.",
+          highlights: "Son gece kutlaması ve Kita-Senju evine dönüş.",
+          transportReason: "Shibuya'dan Hanzomon/Tobu Skytree metro hattı Kita-Senju'ya aktarmasız tek tren gider (35 dk).",
+          cost4: 14000, distanceSummary: "17.2 km • 35 dk tren", coords: TOKYO_COORDS,
           recommendedMode: "train", selectedMode: "train",
           modes: {
             train: { cost4: 1240, note: "17.2 km • 35 dk | Shibuya → Kita-Senju Hanzomon/Tobu direkt" },
@@ -1487,7 +1562,7 @@ const DEFAULT_DATA = {
       city: "TOKYO → NRT",
       fatigue: "Hafif Tempo • Valiz Dostu Dönüş",
       title: "Narita Havalimanı Transferi & İstanbul Dönüşü (10:10)",
-      subtitle: "Valizlerle direkt Airport Limousine Bus ve İstanbul uçuşu",
+      subtitle: "Direkt Airport Limousine Bus ve İstanbul uçuşu",
       stops: [
         {
           id: "d11_1", time: "06:15", type: "food", visual: "food", completed: false,
@@ -1495,29 +1570,29 @@ const DEFAULT_DATA = {
           desc: "10:10 Narita uçağı için en geç 06:15'te evden çıkış ve durak yanında kahve.",
           longDesc: "Tokyo evinizden (35.7534716, 139.7996485) Kita-Senju Doğu Çıkışı otobüs durağına 550m yürüyüş.",
           highlights: "Konbini'den sıcak kahve ve atıştırmalık alımı.",
-          transportReason: "550m düz yol yürüyüşü veya çantalar ağırsa 2 dakikalık taksi.",
+          transportReason: "550m düz yol yürüyüşü.",
           cost4: 2400, distanceSummary: "550 m • 7 dk yürüyüş", coords: "35.7496,139.8062",
           recommendedMode: "walk", selectedMode: "walk",
           modes: {
             train: { cost4: 0, note: "Yürüme mesafesi" },
-            taxi: { cost4: 600, note: "550 m • 2 dk | Çantalarla otobüs durağına" },
+            taxi: { cost4: 600, note: "550 m • 2 dk" },
             bus: { cost4: 0, note: "Yürüme mesafesi" },
             walk: { cost4: 0, note: "550 m • 7 dk | Kita-Senju Doğu Çıkışı durağına" }
           }
         },
         {
           id: "d11_2", time: "06:45", type: "transit", visual: "flight", completed: false,
-          title: "Narita Havalimanı Transferi (Valiz Dostu Direkt Otobüs)",
-          desc: "Kita-Senju Doğu Çıkışı'ndan kalkan Airport Limousine Bus ile aktarmasız direkt Narita Terminal kapısına ulaşım.",
-          longDesc: "Dönüş gününde 4 kişinin çantaları ve kamera/alışveriş kutularıyla metro merdivenleri inip çıkmak yerine, görevlilerin bagajları otobüs altına yerleştirdiği direkt havalimanı otobüsü en konforlu seçenektir.",
-          highlights: "Sabah trafiği olmadan ~70-75 dakikada doğrudan Narita giden yolcu terminal kapısında iniş.",
-          transportReason: "Fiyat (¥11,200), sıfır aktarma konforu ve bagajların alt bölümde taşınması nedeniyle Otobüs açık ara en iyi seçenektir.",
+          title: "Narita Havalimanı Transferi (Direkt Airport Limousine Bus)",
+          desc: "Kita-Senju Doğu Çıkışı'ndan kalkan otobüs ile aktarmasız direkt Narita Terminal kapısına ulaşım.",
+          longDesc: "Sabah trafiği olmadan ~70-75 dakikada doğrudan Narita giden yolcu terminal kapısında iniş.",
+          highlights: "Çantalar alt bagajda, sıfır aktarma konforu.",
+          transportReason: "Fiyat (¥11,200) ve sıfır aktarma konforu nedeniyle Otobüs açık ara en iyi seçenektir.",
           cost4: 0, distanceSummary: "64 km • 75 dk direkt otobüs", coords: "35.7720,140.3929",
           recommendedMode: "bus", selectedMode: "bus",
           modes: {
             train: { cost4: 10800, note: "64 km • 55 dk | Kita-Senju → Nippori → Keisei Skyliner" },
             taxi: { cost4: 26500, note: "64 km • 60 dk | Kapıdan Narita'ya özel VIP taksi" },
-            bus: { cost4: 11200, note: "64 km • 75 dk | Airport Limousine Bus Direkt (Bagajlar altta, Kişi ¥2,800)" },
+            bus: { cost4: 11200, note: "64 km • 75 dk | Airport Limousine Bus Direkt (Kişi ¥2,800)" },
             walk: { cost4: 0, note: "64 km • Şehirler arası" }
           }
         },
@@ -1526,7 +1601,7 @@ const DEFAULT_DATA = {
           title: "Narita Check-in, Tax-Free & 10:10 İstanbul Uçuşu",
           desc: "Bagaj teslimi, gümrük işlemleri ve 10:10 uçağı ile İstanbul'a dönüş.",
           longDesc: "Uçuştan 2 saat önce terminalde check-in ve pasaport kontrolü.",
-          highlights: "Son Japon atıştırmalıkları (Tokyo Banana, Royce Çikolata, KitKat) Duty-Free alışverişi.",
+          highlights: "Son Japon atıştırmalıkları Duty-Free alışverişi.",
           transportReason: "Terminal içi yürüme mesafesindedir.",
           cost4: 0, distanceSummary: "Terminal içi", coords: "35.7720,140.3929",
           recommendedMode: "walk", selectedMode: "walk",
@@ -1543,11 +1618,55 @@ const DEFAULT_DATA = {
 };
 
 let appState = null;
-let currentUser = null;
+let currentUser = null; // { role: 'guest' | 'admin', name, avatar_url, device_token }
+let registeredUsers = [];
+let pendingAvatarBase64 = "";
 let selectedDay = 1;
 let activeMainView = "timeline";
 let leafletMap = null;
 let mapLayerGroup = null;
+let ws = null;
+
+// --- DEVICE TOKEN GENERATOR ---
+function getOrCreateDeviceToken() {
+  let token = localStorage.getItem("japan_device_token_v1");
+  if (!token) {
+    const arr = new Uint8Array(24);
+    crypto.getRandomValues(arr);
+    token = Array.from(arr, b => b.toString(16).padStart(2, "0")).join("");
+    localStorage.setItem("japan_device_token_v1", token);
+  }
+  return token;
+}
+
+// --- WEBSOCKET REAL-TIME SYNC ---
+function connectWebSocket() {
+  try {
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    ws = new WebSocket(`${proto}//${location.host}/ws`);
+    ws.onopen = () => setSyncStatus(true);
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "state_update" && msg.state) {
+          registeredUsers = msg.state.users || registeredUsers;
+          appState = msg.state;
+          localStorage.setItem("japan_trip_2026_v9", JSON.stringify(appState));
+          renderAll();
+          renderAuthGate();
+        } else if (msg.type === "users_update" && msg.users) {
+          registeredUsers = msg.users;
+          renderAll();
+          renderAuthGate();
+        }
+      } catch (e) {}
+    };
+    ws.onclose = () => {
+      setSyncStatus(false);
+      setTimeout(connectWebSocket, 4000);
+    };
+  } catch (e) {}
+}
 
 // --- THEME ---
 function initTheme() {
@@ -1571,7 +1690,60 @@ function applyTheme(mode) {
   localStorage.setItem("japan_theme", mode);
 }
 
-// --- VIEW SWITCHER (TIMELINE vs INTERACTIVE MAP) ---
+// --- AVATAR CLIENT COMPRESSION ---
+function compressImageToBase64(file, callback) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const size = 256;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+      callback(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAvatarSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  compressImageToBase64(file, (b64) => {
+    pendingAvatarBase64 = b64;
+    const box = document.getElementById("avatarPreviewBox");
+    box.innerHTML = `<img src="${b64}" class="w-full h-full object-cover" />`;
+  });
+}
+
+function handleUpdateMyAvatar(event) {
+  const file = event.target.files?.[0];
+  if (!file || !currentUser?.device_token) return;
+  compressImageToBase64(file, async (b64) => {
+    try {
+      const res = await fetch("/api/user/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_token: currentUser.device_token, avatar_base64: b64 })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = { ...currentUser, ...data.user };
+        registeredUsers = data.users || registeredUsers;
+        openMyProfile();
+        renderAll();
+      }
+    } catch (e) {}
+  });
+}
+
+// --- VIEW SWITCHER ---
 function switchMainView(view) {
   activeMainView = view;
   const tlSec = document.getElementById("timelineViewSection");
@@ -1617,7 +1789,6 @@ function renderInteractiveMap() {
   const latlngs = [];
   const validStops = [];
 
-  // Add Home Pins
   const tokyoHomeIcon = L.divIcon({
     html: `<div class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold shadow border border-white whitespace-nowrap">🏠 Tokyo Evi</div>`,
     className: ""
@@ -1661,20 +1832,17 @@ function selectMapStopCard(stop, num) {
   const card = document.getElementById("mapSelectedPinCard");
   const mapsUrl = buildDirectionsUrl(stop);
   const total4 = getStopTotalJpy(stop);
+  const photo = LANDMARK_PHOTOS[stop.visual] || LANDMARK_PHOTOS.castle;
   card.innerHTML = `
-    <div class="flex items-start justify-between gap-3">
-      <div class="min-w-0">
+    <div class="flex items-center gap-3">
+      <img src="${photo}" class="w-14 h-14 rounded-2xl object-cover shrink-0" />
+      <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5">
           <span class="w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold inline-flex items-center justify-center">${num}</span>
           <span class="text-xs font-extrabold text-slate-500">${escapeHtml(stop.time)}</span>
-          <span class="text-[10px] font-mono text-slate-400">(${escapeHtml(stop.coords)})</span>
         </div>
-        <h4 class="text-sm font-extrabold text-slate-900 dark:text-white mt-1 truncate">${escapeHtml(stop.title)}</h4>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">${escapeHtml(stop.desc)}</p>
-      </div>
-      <div class="text-right shrink-0">
-        <div class="text-xs font-extrabold text-slate-900 dark:text-white">${fmtJpy(total4)}</div>
-        <div class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">${fmtTry(total4)}</div>
+        <h4 class="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 truncate">${escapeHtml(stop.title)}</h4>
+        <div class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">${fmtJpy(total4)} (${fmtTry(total4)})</div>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-2 mt-3">
@@ -1699,7 +1867,6 @@ function focusHomeOnMap(which) {
   }
 }
 
-// --- GOOGLE MAPS DIRECTIONS URL ---
 function buildDirectionsUrl(stop) {
   const dest = encodeURIComponent(stop.coords || stop.title);
   const modeMap = { train: "transit", taxi: "driving", bus: "transit", walk: "walking" };
@@ -1707,27 +1874,26 @@ function buildDirectionsUrl(stop) {
   return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${tMode}`;
 }
 
-// --- LIVE EXCHANGE RATE ---
+// --- LIVE EXCHANGE RATE FROM BACKEND ---
 async function fetchLiveExchangeRate(manualTrigger = false) {
   try {
-    const res = await fetch("https://open.er-api.com/v6/latest/JPY");
+    const res = await fetch("/api/rate");
     if (res.ok) {
       const data = await res.json();
-      if (data && data.rates && data.rates.TRY) {
-        appState.exchangeRate = Number(data.rates.TRY.toFixed(4));
+      if (data && data.rate) {
+        appState.exchangeRate = data.rate;
         const now = new Date();
         appState.rateUpdatedAt = now.toLocaleDateString("tr-TR") + " " + now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-        await saveState();
-        updateRateBadges(true);
+        updateRateBadges();
         if (manualTrigger) { openBudgetModal(); renderAll(); }
         return;
       }
     }
   } catch (e) {}
-  updateRateBadges(false);
+  updateRateBadges();
 }
 
-function updateRateBadges(isLive) {
+function updateRateBadges() {
   const rateStr = (appState.exchangeRate || 0.316).toFixed(3);
   const hRate = document.getElementById("headerRateText");
   const lastUpd = document.getElementById("rateLastUpdated");
@@ -1737,11 +1903,11 @@ function updateRateBadges(isLive) {
 
 // --- STORAGE & SYNC ---
 async function loadState() {
-  const localRaw = localStorage.getItem("japan_trip_2026_v8");
+  const localRaw = localStorage.getItem("japan_trip_2026_v9");
   if (localRaw) {
     try { appState = JSON.parse(localRaw); } catch (e) {}
   }
-  if (!appState) {
+  if (!appState || !appState.days) {
     appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
 
@@ -1749,9 +1915,10 @@ async function loadState() {
     const res = await fetch("/api/state", { cache: "no-store" });
     if (res.ok) {
       const serverData = await res.json();
+      if (serverData.users) registeredUsers = serverData.users;
       if (serverData && serverData.days && serverData.days.length > 0) {
         appState = serverData;
-        localStorage.setItem("japan_trip_2026_v8", JSON.stringify(appState));
+        localStorage.setItem("japan_trip_2026_v9", JSON.stringify(appState));
       } else {
         await pushStateToServer();
       }
@@ -1763,7 +1930,7 @@ async function loadState() {
 }
 
 async function saveState() {
-  localStorage.setItem("japan_trip_2026_v8", JSON.stringify(appState));
+  localStorage.setItem("japan_trip_2026_v9", JSON.stringify(appState));
   await pushStateToServer();
 }
 
@@ -1788,33 +1955,23 @@ function setSyncStatus(isOnline) {
     : "w-2 h-2 rounded-full bg-amber-400 shrink-0";
 }
 
-setInterval(async () => {
-  if (!currentUser) return;
-  try {
-    const res = await fetch("/api/state", { cache: "no-store" });
-    if (res.ok) {
-      const serverData = await res.json();
-      if (serverData && serverData.days && JSON.stringify(serverData) !== JSON.stringify(appState)) {
-        appState = serverData;
-        localStorage.setItem("japan_trip_2026_v8", JSON.stringify(appState));
-        renderAll();
-      }
-      setSyncStatus(true);
-    }
-  } catch (e) {}
-}, 5000);
-
-// --- AUTH ---
+// --- DEVICE-BOUND AUTHENTICATION ---
 function renderAuthGate() {
   const listEl = document.getElementById("registeredUsersList");
   const badgeEl = document.getElementById("userCountBadge");
-  const users = appState.registeredUsers || [];
-  badgeEl.textContent = `${users.length} / 4`;
+  if (!listEl || !badgeEl) return;
+  badgeEl.textContent = `${registeredUsers.length} / 4`;
 
-  if (users.length === 0) {
-    listEl.innerHTML = `<span class="text-slate-400 italic">Henüz kayıtlı yolcu yok.</span>`;
+  if (registeredUsers.length === 0) {
+    listEl.innerHTML = `<span class="text-slate-400 italic">Henüz kayıtlı yolcu yok (İlk 4 cihaz kaydedilir).</span>`;
   } else {
-    listEl.innerHTML = users.map(u => `<span class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 font-bold text-slate-700 dark:text-slate-200">👤 ${escapeHtml(u)}</span>`).join("");
+    listEl.innerHTML = registeredUsers.map(u => `
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 font-bold text-slate-700 dark:text-slate-200">
+        ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-4 h-4 rounded-full object-cover" />` : `<span>👤</span>`}
+        <span>${escapeHtml(u.name)}</span>
+        <span class="text-[9px] text-emerald-600">🔒</span>
+      </div>
+    `).join("");
   }
 }
 
@@ -1837,55 +1994,84 @@ function switchAuthTab(tab) {
 async function handleGuestLogin() {
   const rawName = document.getElementById("guestNameInput").value.trim();
   const errEl = document.getElementById("authError");
+  const btn = document.getElementById("guestSubmitBtn");
+
   if (!rawName) {
     errEl.textContent = "Lütfen adınızı ve soyadınızı girin.";
     errEl.classList.remove("hidden");
     return;
   }
 
-  await loadState();
-  const users = appState.registeredUsers || [];
-  const existing = users.find(u => u.toLowerCase() === rawName.toLowerCase());
+  btn.disabled = true;
+  btn.textContent = "Cihaz Doğrulanıyor...";
 
-  if (existing) {
-    currentUser = { role: "guest", name: existing };
-  } else {
-    if (users.length >= 4) {
-      errEl.textContent = "⛔ Kontenjan dolu! 4 kayıtlı yolcunun tamamı giriş yaptığı için yeni kullanıcı erişimi kilitlenmiştir.";
+  const deviceToken = getOrCreateDeviceToken();
+  try {
+    const res = await fetch("/api/auth/register_or_login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: rawName,
+        device_token: deviceToken,
+        avatar_base64: pendingAvatarBase64
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || "Giriş yapılamadı.";
       errEl.classList.remove("hidden");
-      renderAuthGate();
+      btn.disabled = false;
+      btn.textContent = "Cihazımı Kaydet & Giriş Yap ↗";
       return;
     }
-    appState.registeredUsers.push(rawName);
-    await saveState();
-    currentUser = { role: "guest", name: rawName };
-  }
 
-  sessionStorage.setItem("japan_session", JSON.stringify(currentUser));
-  document.getElementById("authModal").classList.add("hidden");
-  renderAll();
+    registeredUsers = data.users || registeredUsers;
+    currentUser = { role: "guest", ...data.user };
+    document.getElementById("authModal").classList.add("hidden");
+    renderAll();
+  } catch (e) {
+    errEl.textContent = "Sunucuya bağlanılamadı.";
+    errEl.classList.remove("hidden");
+  }
+  btn.disabled = false;
+  btn.textContent = "Cihazımı Kaydet & Giriş Yap ↗";
 }
 
 function handleAdminLogin() {
   const pin = document.getElementById("adminPinInput").value.trim();
   const errEl = document.getElementById("adminError");
-  if (pin !== appState.adminPin) {
+  if (pin !== (appState.adminPin || "2026")) {
     errEl.textContent = "Hatalı Admin PIN kodu!";
     errEl.classList.remove("hidden");
     return;
   }
-  currentUser = { role: "admin", name: "Admin" };
-  sessionStorage.setItem("japan_session", JSON.stringify(currentUser));
+  currentUser = { role: "admin", name: "Admin", device_token: getOrCreateDeviceToken() };
+  localStorage.setItem("japan_admin_unlocked", "true");
   document.getElementById("authModal").classList.add("hidden");
   renderAll();
 }
 
-function logoutUser() {
-  sessionStorage.removeItem("japan_session");
-  currentUser = null;
+function switchToAdminPrompt() {
   closeModal("settingsModal");
-  renderAuthGate();
-  document.getElementById("authModal").classList.remove("hidden");
+  if (currentUser?.role === "admin") {
+    localStorage.removeItem("japan_admin_unlocked");
+    location.reload();
+  } else {
+    switchAuthTab("admin");
+    document.getElementById("authModal").classList.remove("hidden");
+  }
+}
+
+function openMyProfile() {
+  if (!currentUser || currentUser.role === "admin") return;
+  const box = document.getElementById("myProfileAvatarLarge");
+  if (currentUser.avatar_url) {
+    box.innerHTML = `<img src="${currentUser.avatar_url}" class="w-full h-full object-cover" />`;
+  } else {
+    box.textContent = currentUser.name.slice(0, 2).toUpperCase();
+  }
+  document.getElementById("myProfileName").textContent = currentUser.name;
+  document.getElementById("profileModal").classList.remove("hidden");
 }
 
 // --- HELPERS ---
@@ -1924,15 +2110,19 @@ function renderAll() {
   if (!currentUser) return;
   const isAdmin = currentUser.role === "admin";
 
-  // 4-Person Group Avatars Bar
+  // 4-Person Group Photo Avatars Bar
   const avatarsBar = document.getElementById("groupAvatarsBar");
-  const users = appState.registeredUsers || [];
   const avatarColors = ["bg-rose-600", "bg-indigo-600", "bg-amber-500", "bg-emerald-600"];
   let avatarsHtml = "";
   for (let i = 0; i < 4; i++) {
-    if (users[i]) {
-      const initials = users[i].split(" ").map(x => x[0]).join("").toUpperCase().slice(0, 2);
-      avatarsHtml += `<div class="w-9 h-9 rounded-full ${avatarColors[i]} text-white text-xs font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-xs" title="${escapeHtml(users[i])}">${escapeHtml(initials)}</div>`;
+    const u = registeredUsers[i];
+    if (u) {
+      const initials = u.name.split(" ").map(x => x[0]).join("").toUpperCase().slice(0, 2);
+      if (u.avatar_url) {
+        avatarsHtml += `<img onclick="openMyProfile()" src="${u.avatar_url}" title="${escapeHtml(u.name)}" class="w-9 h-9 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 shadow-xs cursor-pointer" />`;
+      } else {
+        avatarsHtml += `<div onclick="openMyProfile()" class="w-9 h-9 rounded-full ${avatarColors[i]} text-white text-xs font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-xs cursor-pointer" title="${escapeHtml(u.name)}">${escapeHtml(initials)}</div>`;
+      }
     } else {
       avatarsHtml += `<div class="w-9 h-9 rounded-full bg-white/80 dark:bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 border border-dashed border-slate-300 dark:border-slate-600" title="Boş Kontenjan">?</div>`;
     }
@@ -1942,10 +2132,13 @@ function renderAll() {
   document.getElementById("roleGreeting").textContent = isAdmin ? "👑 Admin Modu" : `👤 ${currentUser.name}`;
   document.getElementById("addStopBtn").classList.toggle("hidden", !isAdmin);
 
+  const notesLen = (appState.groupNotes || []).length;
+  document.getElementById("notesCountBadge").textContent = `Not (${notesLen})`;
+
   const totals = calculateTotals();
   document.getElementById("headerTotalJpy").textContent = fmtJpy(totals.grandTotal);
   document.getElementById("headerTotalTry").textContent = `(${fmtTry(totals.grandTotal)})`;
-  updateRateBadges(true);
+  updateRateBadges();
 
   const pct = totals.totalStops ? Math.round((totals.completedStops / totals.totalStops) * 100) : 0;
   document.getElementById("overallProgressText").textContent = `${totals.completedStops}/${totals.totalStops} (%${pct})`;
@@ -1991,15 +2184,17 @@ function renderNextTarget() {
 
   const dayTag = document.getElementById("nextTargetDayTag");
   const bodyEl = document.getElementById("nextTargetBody");
+  const heroImg = document.getElementById("nextTargetImg");
 
   if (!nextStop) {
     dayTag.textContent = "Tamamlandı";
+    heroImg.src = LANDMARK_PHOTOS.shibuya;
     bodyEl.innerHTML = `<div class="text-sm font-extrabold text-emerald-300">🎉 11 günlük Japonya turundaki tüm hedefler tamamlandı!</div>`;
     return;
   }
 
-  const theme = VISUAL_THEMES[nextStop.visual] || VISUAL_THEMES.castle;
-  document.getElementById("nextTargetCard").className = `rounded-[28px] p-5 text-white shadow-xl relative overflow-hidden bg-gradient-to-br ${theme.bg} border border-white/15`;
+  heroImg.src = LANDMARK_PHOTOS[nextStop.visual] || LANDMARK_PHOTOS.castle;
+  const kanji = VISUAL_KANJI[nextStop.visual] || "日本";
 
   dayTag.textContent = `${targetDay.dayNum}. Gün • ${nextStop.time}`;
   const modeKey = nextStop.selectedMode || nextStop.recommendedMode || "train";
@@ -2009,19 +2204,19 @@ function renderNextTarget() {
   const mapsUrl = buildDirectionsUrl(nextStop);
 
   bodyEl.innerHTML = `
-    <div class="space-y-3 relative z-10">
+    <div class="space-y-3">
       <div class="flex items-start justify-between gap-2">
         <div>
           <h3 class="text-lg sm:text-xl font-extrabold text-white leading-snug">${escapeHtml(nextStop.title)}</h3>
           <p class="text-xs text-white/85 mt-1 line-clamp-2">${escapeHtml(nextStop.desc)}</p>
         </div>
-        <span class="text-2xl font-black text-white/25 shrink-0">${theme.kanji}</span>
+        <span class="text-xl font-black text-white/30 shrink-0">${kanji}</span>
       </div>
       <div class="flex flex-wrap gap-1.5">
-        <span class="px-2.5 py-1 rounded-full bg-black/25 text-[11px] font-bold text-amber-200">
+        <span class="px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-xs text-[11px] font-bold text-amber-200">
           ${modeLabels[modeKey]} • ${escapeHtml(modeInfo.note)}
         </span>
-        <span class="px-2.5 py-1 rounded-full bg-white/20 text-[11px] font-extrabold text-white">
+        <span class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-xs text-[11px] font-extrabold text-white">
           4 Kişi: ${fmtJpy(total4)} (${fmtTry(total4)})
         </span>
       </div>
@@ -2032,10 +2227,10 @@ function renderNextTarget() {
         </a>
         ${currentUser.role === "admin" ? `
           <button onclick="toggleStopComplete('${nextStop.id}')"
-            class="py-2.5 px-3 rounded-2xl bg-black/30 hover:bg-black/40 text-white text-xs font-extrabold border border-white/20 transition">
+            class="py-2.5 px-3 rounded-2xl bg-black/40 hover:bg-black/60 text-white text-xs font-extrabold border border-white/25 transition">
             ✓ Tamamlandı Yap
           </button>
-        ` : `<button onclick="openPlaceDetail('${nextStop.id}')" class="py-2.5 px-3 rounded-2xl bg-black/30 text-white text-xs font-extrabold border border-white/20">ℹ️ Detayları Gör</button>`}
+        ` : `<button onclick="openPlaceDetail('${nextStop.id}')" class="py-2.5 px-3 rounded-2xl bg-black/40 text-white text-xs font-extrabold border border-white/25">ℹ️ Detayları Gör</button>`}
       </div>
     </div>
   `;
@@ -2056,7 +2251,7 @@ function renderCurrentDay() {
 
   const container = document.getElementById("stopsContainer");
   container.innerHTML = dayObj.stops.map((stop, idx) => {
-    const theme = VISUAL_THEMES[stop.visual] || VISUAL_THEMES[stop.type === "food" ? "food" : stop.type === "shop" ? "shopping" : "castle"];
+    const photoUrl = LANDMARK_PHOTOS[stop.visual] || LANDMARK_PHOTOS.castle;
     const modeKey = stop.selectedMode || stop.recommendedMode || "train";
     const recKey = stop.recommendedMode || "train";
     const activeMode = stop.modes[modeKey] || { cost4: 0, note: "" };
@@ -2068,12 +2263,9 @@ function renderCurrentDay() {
         stop.completed ? "border-emerald-300 dark:border-emerald-800 opacity-80" : "border-white/90 dark:border-slate-800"
       }">
         <div class="p-4 space-y-3">
-          <!-- COMPACT EDITORIAL HEADER WITH LEFT THUMBNAIL TILE -->
+          <!-- REAL PHOTO THUMBNAIL + TITLE ROW -->
           <div class="flex items-start gap-3">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.bg} text-white flex flex-col items-center justify-center shrink-0 shadow-sm">
-              <span class="text-xl leading-none">${theme.icon}</span>
-              <span class="text-[9px] font-extrabold opacity-85 mt-1">${theme.kanji}</span>
-            </div>
+            <img src="${photoUrl}" alt="" class="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xs bg-slate-200 dark:bg-slate-800" />
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
@@ -2119,7 +2311,7 @@ function renderCurrentDay() {
             </div>
           </div>
 
-          <!-- ICONIC 4-MODE TRANSPORT SELECTOR (TRAFFIC TRAVEL STYLE) -->
+          <!-- 4-MODE TRANSPORT SELECTOR -->
           <div class="pt-2 border-t border-slate-200/60 dark:border-slate-800">
             <div class="grid grid-cols-4 gap-1.5">
               ${["train", "taxi", "bus", "walk"].map(mKey => {
@@ -2173,6 +2365,53 @@ function renderCurrentDay() {
   }).join("");
 }
 
+// --- GROUP SHARED NOTES ---
+function openNotesModal() {
+  const list = document.getElementById("groupNotesList");
+  const notes = appState.groupNotes || [];
+  if (notes.length === 0) {
+    list.innerHTML = `<div class="text-center text-slate-400 py-6">Henüz grup notu yok. İlk notu sen bırak!</div>`;
+  } else {
+    list.innerHTML = notes.map(n => `
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 flex items-start justify-between gap-2">
+        <div>
+          <div class="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400">${escapeHtml(n.author)} • <span class="text-slate-400 font-normal">${escapeHtml(n.time)}</span></div>
+          <div class="text-slate-800 dark:text-slate-200 mt-0.5 font-medium">${escapeHtml(n.text)}</div>
+        </div>
+        ${(currentUser?.role === "admin" || currentUser?.name === n.author) ? `
+          <button onclick="deleteGroupNote(${n.id})" class="text-rose-500 font-bold text-xs">✕</button>
+        ` : ""}
+      </div>
+    `).join("");
+  }
+  document.getElementById("notesModal").classList.remove("hidden");
+}
+
+async function addGroupNote() {
+  const input = document.getElementById("newGroupNoteInput");
+  const txt = input.value.trim();
+  if (!txt) return;
+  if (!appState.groupNotes) appState.groupNotes = [];
+  const now = new Date();
+  appState.groupNotes.unshift({
+    id: Date.now(),
+    author: currentUser?.name || "Yolcu",
+    text: txt,
+    time: now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+  });
+  input.value = "";
+  await saveState();
+  openNotesModal();
+  renderAll();
+}
+
+async function deleteGroupNote(id) {
+  appState.groupNotes = (appState.groupNotes || []).filter(n => n.id !== id);
+  await saveState();
+  openNotesModal();
+  renderAll();
+}
+
 // --- MODALS & ACTIONS ---
 function openPlaceDetail(stopId) {
   let foundStop = null;
@@ -2182,9 +2421,8 @@ function openPlaceDetail(stopId) {
   }
   if (!foundStop) return;
 
-  const theme = VISUAL_THEMES[foundStop.visual] || VISUAL_THEMES.castle;
-  document.getElementById("placeDetailHeader").className = `p-5 text-white bg-gradient-to-r ${theme.bg} flex items-start justify-between gap-3`;
-  document.getElementById("placeDetailBadge").textContent = `${theme.icon} ${theme.tag} • Saat ${foundStop.time}`;
+  document.getElementById("placeDetailImg").src = LANDMARK_PHOTOS[foundStop.visual] || LANDMARK_PHOTOS.castle;
+  document.getElementById("placeDetailBadge").textContent = `Saat ${foundStop.time}`;
   document.getElementById("placeDetailTitle").textContent = foundStop.title;
   document.getElementById("placeDetailCoords").textContent = foundStop.coords ? `GPS: ${foundStop.coords}` : "";
   document.getElementById("placeDetailLongDesc").textContent = foundStop.longDesc || foundStop.desc;
@@ -2408,31 +2646,46 @@ function openSettingsModal() {
   const isAdmin = currentUser?.role === "admin";
   document.getElementById("currentSessionInfo").textContent = isAdmin
     ? "👑 Admin (Tam Düzenleme & Kontrol)"
-    : `👤 Yolcu: ${currentUser?.name} (Canlı İzleme)`;
+    : `👤 ${currentUser?.name} (Cihaza Kilitli)`;
 
+  document.getElementById("btnOpenMyProfile").classList.toggle("hidden", isAdmin);
   document.getElementById("adminControlsBox").classList.toggle("hidden", !isAdmin);
+  document.getElementById("btnSwitchAdmin").textContent = isAdmin ? "🚪 Admin Modundan Çık" : "👑 Admin Moduna Geç";
+
   if (isAdmin) renderAdminUserList();
   document.getElementById("settingsModal").classList.remove("hidden");
 }
 function renderAdminUserList() {
   const container = document.getElementById("adminUserManager");
-  const users = appState.registeredUsers || [];
-  if (users.length === 0) {
-    container.innerHTML = `<div class="text-slate-400 italic">Henüz kayıtlı yolcu yok.</div>`;
+  if (registeredUsers.length === 0) {
+    container.innerHTML = `<div class="text-slate-400 italic">Henüz kayıtlı cihaz yok.</div>`;
     return;
   }
-  container.innerHTML = users.map((u, i) => `
+  container.innerHTML = registeredUsers.map((u, i) => `
     <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
-      <span class="font-bold text-slate-700 dark:text-slate-200">${i + 1}. ${escapeHtml(u)}</span>
-      <button onclick="removeRegisteredUser(${i})" class="text-rose-600 font-extrabold">Sil</button>
+      <div class="flex items-center gap-2">
+        ${u.avatar_url ? `<img src="${u.avatar_url}" class="w-5 h-5 rounded-full object-cover" />` : `<span>👤</span>`}
+        <span class="font-bold text-slate-700 dark:text-slate-200">${i + 1}. ${escapeHtml(u.name)}</span>
+      </div>
+      <button onclick="adminRemoveUser(${u.id})" class="text-rose-600 font-extrabold">Kilidi Sil</button>
     </div>
   `).join("");
 }
-async function removeRegisteredUser(idx) {
-  appState.registeredUsers.splice(idx, 1);
-  await saveState();
-  renderAdminUserList();
-  renderAll();
+async function adminRemoveUser(userId) {
+  if (!confirm("Bu kullanıcının cihaz kilidi kaldırılacak ve listeden silinecek. Emin misiniz?")) return;
+  try {
+    const res = await fetch("/api/admin/remove_user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, admin_pin: appState.adminPin || "2026" })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      registeredUsers = data.users || [];
+      renderAdminUserList();
+      renderAll();
+    }
+  } catch (e) {}
 }
 async function changeAdminPin() {
   const val = document.getElementById("newAdminPinInput").value.trim();
@@ -2443,12 +2696,10 @@ async function changeAdminPin() {
   alert("Admin PIN güncellendi!");
 }
 async function resetAllData() {
-  if (!confirm("Tüm plan en güncel verilere sıfırlanacak. Emin misiniz?")) return;
-  const keepUsers = appState.registeredUsers;
+  if (!confirm("Tüm plan en güncel verilere sıfırlanacak (kayıtlı cihazlar korunur). Emin misiniz?")) return;
   const keepPin = appState.adminPin;
   const keepRate = appState.exchangeRate;
   appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  appState.registeredUsers = keepUsers;
   appState.adminPin = keepPin;
   appState.exchangeRate = keepRate;
   await saveState();
@@ -2464,15 +2715,37 @@ function closeModal(id) {
   initTheme();
   await loadState();
   fetchLiveExchangeRate(false);
-  const savedSession = sessionStorage.getItem("japan_session");
-  if (savedSession) {
-    try {
-      currentUser = JSON.parse(savedSession);
-      document.getElementById("authModal").classList.add("hidden");
-      renderAll();
-      return;
-    } catch (e) {}
+  connectWebSocket();
+
+  const deviceToken = getOrCreateDeviceToken();
+
+  // Check if Admin session was previously unlocked on this device
+  if (localStorage.getItem("japan_admin_unlocked") === "true") {
+    currentUser = { role: "admin", name: "Admin", device_token: deviceToken };
+    document.getElementById("authModal").classList.add("hidden");
+    renderAll();
+    return;
   }
+
+  // Verify persistent device_token against backend SQLite database
+  try {
+    const res = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ device_token: deviceToken })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.users) registeredUsers = data.users;
+      if (data.authenticated && data.user) {
+        currentUser = { role: "guest", ...data.user };
+        document.getElementById("authModal").classList.add("hidden");
+        renderAll();
+        return;
+      }
+    }
+  } catch (e) {}
+
   renderAuthGate();
 })();
 </script>
