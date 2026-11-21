@@ -2,9 +2,10 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /ui
 COPY package.json .
+COPY vite.config.js .
 COPY index.html .
 COPY src ./src
-RUN npm install && npm run build
+RUN npm install && npx vite build
 
 # 2. Aşama: Python FastAPI + SQLite + WebSocket Sunucusu
 FROM python:3.11-slim
