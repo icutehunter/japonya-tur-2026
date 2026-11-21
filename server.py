@@ -10,7 +10,7 @@ from typing import List
 import httpx
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
@@ -122,6 +122,30 @@ def serve_index():
     if os.path.exists("dist/index.html"):
         return FileResponse("dist/index.html")
     return FileResponse("index.html")
+
+
+@app.get("/api/tiles/{style}/{z}/{x}/{y}.png")
+async def proxy_map_tile(style: str, z: int, x: int, y: int):
+    if style == "satellite":
+        tile_url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    elif style == "dark":
+        tile_url = f"https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+    else:
+        tile_url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+
+    headers = {"User-Agent": "JaponyaRotamiz2026/2.0 (Personal Travel App)"}
+    try:
+        async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as client:
+            r = await client.get(tile_url, headers=headers)
+            if r.status_code == 200:
+                return Response(
+                    content=r.content,
+                    media_type=r.headers.get("content-type", "image/png"),
+                    headers={"Cache-Control": "public, max-age=86400"},
+                )
+    except Exception:
+        pass
+    return Response(status_code=502)
 
 
 @app.get("/api/rate")
